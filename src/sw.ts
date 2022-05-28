@@ -47,11 +47,34 @@ async function cacheFirst(e: any) {
   }
 }
 
+async function networkFirst(e: any) {
+  const cache = await caches.open("supabase-data");
+
+  const fetchResponse = await fetch(e.request);
+
+  if (fetchResponse.ok) {
+    await cache.put(e.request, fetchResponse);
+    return fetchResponse;
+  } else {
+    const cachedResponse = await cache.match(e.request);
+
+    if (cachedResponse) {
+      return cachedResponse;
+    } else {
+      return Response.error();
+    }
+  }
+}
+
 ctx.addEventListener("fetch", (e: any) => {
   // serve index.html for all page requests
   if (e.request.destination === "document") {
     e.respondWith(htmlResponse(e));
     return;
+  }
+
+  if (e.request.url.startsWith(process.env.SUPABASE_URL)) {
+    e.respondWith(networkFirst(e));
   }
 
   // get precached assets else fallback to network

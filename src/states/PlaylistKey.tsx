@@ -6,7 +6,7 @@ import { usePlaylistScores } from "../services/scores";
 import SearchBar from "../components/search-bar";
 import PlaylistList from "../components/playlist-list/playlist-list";
 
-export default function PlaylistKey() {
+export function PlaylistKey() {
   const { playlistKey } = useParams();
   const playlist = usePlaylist(playlistKey);
   const { scores, mutate } = usePlaylistScores(playlistKey);

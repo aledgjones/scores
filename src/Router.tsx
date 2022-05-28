@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import { Shell } from "./Shell";
 import { AuthCheck } from "./states/AuthCheck";
-import { Library } from "./states/library";
+import { Library } from "./states/Library";
 import { LibraryKey } from "./states/LibraryKey";
 import { LibraryKeySettings } from "./states/LibraryKeySettings";
 import { Login } from "./states/Login";
 import { NotFound } from "./states/NotFound";
-import PlaylistKey from "./states/PlaylistKey";
+import { PlaylistKey } from "./states/PlaylistKey";
 import { PlaylistKeyScore } from "./states/PlaylistKeyScore";
 import { ScorePage } from "./states/ScorePage";
 import { Signup } from "./states/Signup";

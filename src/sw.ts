@@ -67,18 +67,16 @@ async function networkFirst(e: any) {
 }
 
 ctx.addEventListener("fetch", (e: any) => {
-  // serve index.html for all page requests
   if (e.request.destination === "document") {
+    // serve index.html for all page requests
     e.respondWith(htmlResponse(e));
-    return;
-  }
-
-  if (e.request.url.startsWith(process.env.SUPABASE_URL)) {
+  } else if (e.request.url.startsWith(process.env.SUPABASE_URL)) {
+    // get from network else fallback to cache
     e.respondWith(networkFirst(e));
+  } else {
+    // get precached assets else fallback to network
+    e.respondWith(cacheFirst(e));
   }
-
-  // get precached assets else fallback to network
-  e.respondWith(cacheFirst(e));
 });
 
 ctx.addEventListener("message", (e: any) => {

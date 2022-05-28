@@ -1,0 +1,65 @@
+import { manifest, version } from "@parcel/service-worker";
+
+const ctx: any = self;
+
+async function install() {
+  const cache = await caches.open(version);
+  await cache.addAll([
+    ...manifest,
+    "/empty.png",
+    "/solo.png",
+    "/pdf.worker.min.js",
+  ]);
+}
+addEventListener("install", (e: any) => e.waitUntil(install()));
+
+async function activate() {
+  const keys = await caches.keys();
+  await Promise.all(keys.map((key) => key !== version && caches.delete(key)));
+}
+addEventListener("activate", (e: any) => e.waitUntil(activate()));
+
+async function htmlResponse(e: any) {
+  const cache = await caches.open(version);
+  const cachedResponse = await cache.match("/index.html");
+
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  return fetch(e.request);
+}
+
+async function cacheFirst(e: any) {
+  const cache = await caches.open(version);
+  const cachedResponse = await cache.match(e.request);
+
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  const fetchResponse = await fetch(e.request);
+
+  if (fetchResponse.ok) {
+    return fetchResponse;
+  } else {
+    return Response.error();
+  }
+}
+
+ctx.addEventListener("fetch", (e: any) => {
+  // serve index.html for all page requests
+  if (e.request.destination === "document") {
+    e.respondWith(htmlResponse(e));
+    return;
+  }
+
+  // get precached assets else fallback to network
+  e.respondWith(cacheFirst(e));
+});
+
+ctx.addEventListener("message", (e: any) => {
+  if (e.data === "SKIP_WAITING") {
+    ctx.skipWaiting();
+  }
+});

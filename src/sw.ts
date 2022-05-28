@@ -31,11 +31,11 @@ async function htmlResponse(e: any) {
 }
 
 async function cacheFirst(e: any) {
-  console.log(`[SW] cacheFirst`);
   const cache = await caches.open(version);
   const cachedResponse = await cache.match(e.request);
 
   if (cachedResponse) {
+    console.log(`[SW] cacheFirst`);
     console.log(`[SW] from cache: ${e.request.url}`);
     return cachedResponse;
   }
@@ -43,6 +43,7 @@ async function cacheFirst(e: any) {
   try {
     const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
+      console.log(`[SW] cacheFirst`);
       console.log(`[SW] from fetch: ${e.request.url}`);
       return fetchResponse;
     } else {
@@ -54,12 +55,12 @@ async function cacheFirst(e: any) {
 }
 
 async function networkFirst(e: any) {
-  console.log(`[SW] networkFirst`);
   const cache = await caches.open("supabase-data");
 
   try {
     const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
+      console.log(`[SW] networkFirst`);
       console.log(`[SW] from fetch: ${e.request.url}`);
       await cache.put(e.request, fetchResponse.clone());
       return fetchResponse;
@@ -67,6 +68,7 @@ async function networkFirst(e: any) {
       throw "fetch failed";
     }
   } catch {
+    console.log(`[SW] networkFirst`);
     console.log(`[SW] from cache: ${e.request.url}`);
     const cachedResponse = await cache.match(e.request);
 

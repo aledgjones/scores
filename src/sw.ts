@@ -53,7 +53,7 @@ async function networkFirst(e: any) {
   const fetchResponse = await fetch(e.request);
 
   if (fetchResponse.ok) {
-    await cache.put(e.request, fetchResponse);
+    await cache.put(e.request, fetchResponse.clone());
     return fetchResponse;
   } else {
     const cachedResponse = await cache.match(e.request);

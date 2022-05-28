@@ -35,16 +35,12 @@ async function cacheFirst(e: any) {
   const cachedResponse = await cache.match(e.request);
 
   if (cachedResponse) {
-    console.log(`[SW] cacheFirst`);
-    console.log(`[SW] from cache: ${e.request.url}`);
     return cachedResponse;
   }
 
   try {
     const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
-      console.log(`[SW] cacheFirst`);
-      console.log(`[SW] from fetch: ${e.request.url}`);
       return fetchResponse;
     } else {
       throw "fetch failed";
@@ -60,16 +56,12 @@ async function networkFirst(e: any) {
   try {
     const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
-      console.log(`[SW] networkFirst`);
-      console.log(`[SW] from fetch: ${e.request.url}`);
       await cache.put(e.request, fetchResponse.clone());
       return fetchResponse;
     } else {
       throw "fetch failed";
     }
   } catch {
-    console.log(`[SW] networkFirst`);
-    console.log(`[SW] from cache: ${e.request.url}`);
     const cachedResponse = await cache.match(e.request);
 
     if (cachedResponse) {

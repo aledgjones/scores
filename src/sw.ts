@@ -40,21 +40,24 @@ async function cacheFirst(e: any) {
     return cachedResponse;
   }
 
-  console.log(`[SW] from fetch: ${e.request.url}`);
-  const fetchResponse = await fetch(e.request);
-
-  if (fetchResponse.ok) {
-    return fetchResponse;
-  } else {
+  try {
+    const fetchResponse = await fetch(e.request);
+    if (fetchResponse.ok) {
+      console.log(`[SW] from fetch: ${e.request.url}`);
+      return fetchResponse;
+    } else {
+      throw "fetch failed";
+    }
+  } catch {
     return Response.error();
   }
 }
 
 async function networkFirst(e: any) {
+  console.log(`[SW] networkFirst`);
   const cache = await caches.open("supabase-data");
 
   try {
-    console.log(`[SW] networkFirst`);
     const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
       console.log(`[SW] from fetch: ${e.request.url}`);

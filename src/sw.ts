@@ -45,7 +45,8 @@ async function cacheFirst(e: any) {
     } else {
       throw "fetch failed";
     }
-  } catch {
+  } catch (err) {
+    console.error(err);
     return Response.error();
   }
 }
@@ -62,6 +63,7 @@ async function networkFirst(e: any) {
       throw "fetch failed";
     }
   } catch (err) {
+    console.error(err);
     const cachedResponse = await cache.match(e.request.clone());
 
     if (cachedResponse) {

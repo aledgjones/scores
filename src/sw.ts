@@ -62,7 +62,6 @@ async function networkFirst(e: any) {
       throw "fetch failed";
     }
   } catch (err) {
-    console.log(err);
     const cachedResponse = await cache.match(e.request.clone());
 
     if (cachedResponse) {
@@ -74,15 +73,20 @@ async function networkFirst(e: any) {
 }
 
 ctx.addEventListener("fetch", (e: any) => {
-  if (e.request.destination === "document") {
-    // serve index.html for all page requests
-    e.respondWith(htmlResponse(e));
-  } else if (e.request.url.startsWith(process.env.SUPABASE_URL)) {
-    // get from network else fallback to cache
-    e.respondWith(networkFirst(e));
+  // we can only cache get requests
+  if (e.request.method === "GET") {
+    if (e.request.destination === "document") {
+      // serve index.html for all page requests
+      e.respondWith(htmlResponse(e));
+    } else if (e.request.url.startsWith(process.env.SUPABASE_URL)) {
+      // get from network else fallback to cache
+      e.respondWith(networkFirst(e));
+    } else {
+      // get precached assets else fallback to network
+      e.respondWith(cacheFirst(e));
+    }
   } else {
-    // get precached assets else fallback to network
-    e.respondWith(cacheFirst(e));
+    e.respondWith(fetch(e.request));
   }
 });
 

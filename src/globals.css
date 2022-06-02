@@ -156,7 +156,7 @@ button::-moz-focus-inner {
 /* Switching on box-sizing: border-box by default; toggle this off if you want more granular control */
 body {
   box-sizing: border-box;
-  font-family: Quicksand, sans-serif;
+  font-family: sans-serif;
 }
 
 html,

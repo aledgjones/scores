@@ -25,29 +25,19 @@ async function htmlResponse(e: any) {
 
   if (cachedResponse) {
     return cachedResponse;
+  } else {
+    return fetch(e.request);
   }
-
-  return fetch(e.request);
 }
 
-async function cacheFirst(e: any) {
+async function precacheFirst(e: any) {
   const cache = await caches.open(version);
-  const cachedResponse = await cache.match(e.request);
+  const cachedResponse = await cache.match(e.request.clone());
 
   if (cachedResponse) {
     return cachedResponse;
-  }
-
-  try {
-    const fetchResponse = await fetch(e.request);
-    if (fetchResponse.ok) {
-      return fetchResponse;
-    } else {
-      throw "fetch failed";
-    }
-  } catch (err) {
-    console.error(err);
-    return Response.error();
+  } else {
+    return fetch(e.request);
   }
 }
 
@@ -55,15 +45,14 @@ async function networkFirst(e: any) {
   const cache = await caches.open("supabase-data");
 
   try {
-    const fetchResponse = await fetch(e.request);
+    const fetchResponse = await fetch(e.request.clone());
     if (fetchResponse.ok) {
-      await cache.put(e.request, fetchResponse);
+      await cache.put(e.request, fetchResponse.clone());
       return fetchResponse;
     } else {
       throw "fetch failed";
     }
-  } catch (err) {
-    console.error(err);
+  } catch {
     const cachedResponse = await cache.match(e.request);
 
     if (cachedResponse) {
@@ -85,7 +74,7 @@ ctx.addEventListener("fetch", (e: any) => {
       e.respondWith(networkFirst(e));
     } else {
       // get precached assets else fallback to network
-      e.respondWith(cacheFirst(e));
+      e.respondWith(precacheFirst(e));
     }
   } else {
     e.respondWith(fetch(e.request));

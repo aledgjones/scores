@@ -1,7 +1,7 @@
 {
   "name": "solo-scores",
   "displayName": "Solo Scores",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "",
   "source": "src/index.html",
   "browserslist": "> 0.5%, last 2 versions, not dead",

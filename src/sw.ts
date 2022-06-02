@@ -69,7 +69,7 @@ ctx.addEventListener("fetch", (e: any) => {
     if (e.request.destination === "document") {
       // serve index.html for all page requests
       e.respondWith(htmlResponse(e));
-    } else if (e.request.url.startsWith(process.env.SUPABASE_URL)) {
+    } else if (e.request.url.startsWith(process.env.SUPABASE_URL + "/rest")) {
       // get from network else fallback to cache
       e.respondWith(networkFirst(e));
     } else {

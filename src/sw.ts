@@ -32,14 +32,14 @@ async function htmlResponse(e: any) {
 
 async function cacheFirst(e: any) {
   const cache = await caches.open(version);
-  const cachedResponse = await cache.match(e.request.clone());
+  const cachedResponse = await cache.match(e.request);
 
   if (cachedResponse) {
     return cachedResponse;
   }
 
   try {
-    const fetchResponse = await fetch(e.request.clone());
+    const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
       return fetchResponse;
     } else {
@@ -55,16 +55,16 @@ async function networkFirst(e: any) {
   const cache = await caches.open("supabase-data");
 
   try {
-    const fetchResponse = await fetch(e.request.clone());
+    const fetchResponse = await fetch(e.request);
     if (fetchResponse.ok) {
-      await cache.put(e.request, fetchResponse.clone());
+      await cache.put(e.request, fetchResponse);
       return fetchResponse;
     } else {
       throw "fetch failed";
     }
   } catch (err) {
     console.error(err);
-    const cachedResponse = await cache.match(e.request.clone());
+    const cachedResponse = await cache.match(e.request);
 
     if (cachedResponse) {
       return cachedResponse;

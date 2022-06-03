@@ -1,8 +1,4 @@
-import {
-  GlobalWorkerOptions,
-  getDocument,
-  PDFDocumentProxy,
-} from "pdfjs-dist/legacy/build/pdf";
+import { GlobalWorkerOptions, getDocument, PDFDocumentProxy } from "pdfjs-dist";
 import { useEffect, useState } from "react";
 import { cache } from "./cache";
 import { fitAInsideB } from "./utils";

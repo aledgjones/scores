@@ -9,6 +9,7 @@ import { NotFound } from "./states/NotFound";
 import { PlaylistKey } from "./states/PlaylistKey";
 import { PlaylistKeyScore } from "./states/PlaylistKeyScore";
 import { ScorePage } from "./states/ScorePage";
+import { Settings } from "./states/Settings";
 import { Signup } from "./states/Signup";
 
 export const Router = () => {
@@ -19,6 +20,7 @@ export const Router = () => {
         <Route path="/" element={<Shell />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/settings" element={<Settings />} />
 
           <Route path="/library" element={<Library />} />
           <Route path="/library/:libraryKey" element={<LibraryKey />} />

@@ -4,6 +4,7 @@ import {
   PDFDocumentProxy,
 } from "pdfjs-dist/legacy/build/pdf";
 import { useEffect, useState } from "react";
+import { getOffscreenCanvas } from "../ui/utils/get-offscreen-canvas";
 import { cache } from "./cache";
 import { fitAInsideB } from "./utils";
 
@@ -21,19 +22,15 @@ export const renderPage = async (pdf: PDFDocumentProxy, pageNumber: number) => {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const viewport = page.getViewport({ scale: scale * window.devicePixelRatio });
-  const canvas = document.createElement("canvas");
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
+  const viewport = page.getViewport({ scale });
+  const canvas = getOffscreenCanvas(viewport.width, viewport.height);
   const ctx = canvas.getContext("2d", { alpha: false });
   const renderTask = page.render({
     canvasContext: ctx,
     viewport,
   });
   await renderTask.promise;
-  return new Promise<Blob>((resolve) => {
-    canvas.toBlob((blob) => resolve(blob), "image/webp");
-  });
+  return canvas.toBlob({ type: "image/webp" });
 };
 
 export const usePDF = (

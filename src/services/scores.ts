@@ -3,7 +3,7 @@ import { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { FileEntry, FileState } from "../components/files-list/files-list";
 import { DB_NAME, supabase } from "./db";
-import shortid from "shortid";
+import { v4 as uuid } from "uuid";
 import { Store } from "pullstate";
 import { getUserUid } from "./auth";
 import { cache } from "./cache";
@@ -106,7 +106,7 @@ export const createScore = async (
   genre: Genre,
   files: FileEntry[],
   onChange: (partKey: string, state: FileState) => void,
-  scoreKey = shortid()
+  scoreKey = uuid()
 ) => {
   if (!libraryKey) {
     throw new Error("Something went wrong");

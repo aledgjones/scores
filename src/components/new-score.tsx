@@ -13,7 +13,7 @@ import FilesList, { FileEntry, FileState } from "./files-list/files-list";
 import { arrayMoveImmutable as arrayMove } from "array-move";
 import { pluralize } from "../ui/utils/pluralize";
 import classNames from "classnames";
-import shortid from "shortid";
+import { v4 as uuid } from "uuid";
 import { createScore, Genre } from "../services/scores";
 import toast from "react-hot-toast";
 
@@ -82,7 +82,7 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
     }
     const newEntries = files.map((file) => {
       return {
-        key: shortid(),
+        key: uuid(),
         file: file,
         name: "",
         state: FileState.None,

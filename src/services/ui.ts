@@ -1,5 +1,5 @@
 import { Store } from "pullstate";
-import { Library, LibraryMember } from "./libraries";
+import { Library } from "./libraries";
 import { Playlist } from "./playlists";
 import { PlaylistScore, Score } from "./scores";
 

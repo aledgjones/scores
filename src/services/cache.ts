@@ -5,7 +5,7 @@ import { useLibraries } from "./libraries";
 import useSWR from "swr";
 import { useEffect } from "react";
 import { Store } from "pullstate";
-import { getUserUid } from "./auth";
+import { useUid } from "./auth";
 import { getPdf, renderPage } from "./pdf";
 import toast from "react-hot-toast";
 
@@ -74,7 +74,8 @@ const getLibraryScores = async (key: string, query: string) => {
 };
 
 export const useAllScores = () => {
-  const uid = getUserUid();
+  const uid = useUid();
+
   const { libraries } = useLibraries();
 
   const query = libraries

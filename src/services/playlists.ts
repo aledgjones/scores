@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { getUserUid } from "./auth";
+import { getUserUid, useUid } from "./auth";
 import { supabase } from "./db";
 import { PlaylistScore } from "./scores";
 
@@ -37,7 +37,8 @@ export interface Playlist {
 }
 
 export const usePlaylists = () => {
-  const uid = getUserUid();
+  const uid = useUid();
+
   const key = `playlists/${uid}`;
 
   const { data, mutate } = useSWR<Playlist[]>(() => {

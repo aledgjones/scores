@@ -1,7 +1,26 @@
+import { Store } from "pullstate";
+import { useEffect } from "react";
 import { supabase } from "./db";
 
-export const getUserUid = () => {
-  return supabase.auth.user()?.id;
+export type Uid = string | null;
+
+export const getUserUid = (): Uid => {
+  return supabase.auth.user()?.id || null;
+};
+
+const auth = new Store<string | null>(supabase.auth.user()?.id || null);
+
+export const useUidListener = () => {
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log(event, session?.user?.id || null);
+      auth.update(() => session?.user?.id || null);
+    });
+  }, []);
+};
+
+export const useUid = () => {
+  return auth.useState((s) => s);
 };
 
 export const getUserEmail = () => {
@@ -36,8 +55,8 @@ export const signUp = async (
 
   const { user, error } = await supabase.auth.signUp({ email, password });
 
-  if (error) {
-    return new Error(error.message);
+  if (!user || error) {
+    return new Error(error?.message);
   }
 
   // create user entry

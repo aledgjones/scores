@@ -11,6 +11,7 @@ import NewPlaylist from "./components/new-playlist";
 import PlaylistDrawer from "./components/playlist-drawer";
 import PlaylistScoreSheet from "./components/playlist-score-sheet";
 import ScoreSheet from "./components/score-sheet";
+import { useUidListener } from "./services/auth";
 import { useCache } from "./services/cache";
 import { useLibraries } from "./services/libraries";
 import { usePlaylists } from "./services/playlists";
@@ -28,8 +29,11 @@ import {
   closeScoreSheet,
   ui,
 } from "./services/ui";
+import { useWakeLock } from "./ui/utils/wake-lock";
 
 export const Shell = () => {
+  useWakeLock();
+  useUidListener();
   useLibraries();
   usePlaylists();
   useCache();

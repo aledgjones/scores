@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import useSWR from "swr";
-import { getUserEmail, getUserUid } from "./auth";
+import { getUserEmail, getUserUid, useUid } from "./auth";
 import { DB_NAME, supabase } from "./db";
 
 const lastLibraryStorage = localforage.createInstance({
@@ -71,7 +71,7 @@ export interface LibraryMember {
 }
 
 export const useLibraries = () => {
-  const uid = getUserUid();
+  const uid = useUid();
   const key = `libraries/${uid}`;
 
   const { data, mutate } = useSWR<Library[]>(() => {

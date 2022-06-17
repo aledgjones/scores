@@ -1,4 +1,4 @@
-import { mdiCheck, mdiCursorDefault, mdiEraserVariant, mdiPen } from "@mdi/js";
+import { mdiCheck, mdiCursorPointer, mdiEraserVariant, mdiPen } from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
 import { FC } from "react";
@@ -27,7 +27,7 @@ export const Toolbox: FC<Props> = ({ isDrawing, tool, onChange, onSave }) => {
           })}
           ariaLabel="Cursor tool"
         >
-          <Icon path={mdiCursorDefault} size={1} />
+          <Icon path={mdiCursorPointer} size={1} />
         </IconButton>
         <IconButton
           onClick={() => onChange(Tool.pen)}

@@ -2,7 +2,6 @@ import {
   mdiArrowLeft,
   mdiClose,
   mdiDotsVertical,
-  mdiOpenInNew,
   mdiPencilOutline,
 } from "@mdi/js";
 import Icon from "@mdi/react";
@@ -28,9 +27,6 @@ import { stringToColor } from "../ui/utils/string-to-color";
 import useScrollPosition from "../ui/utils/use-scroll-position";
 import Tooltip from "../ui/components/tooltip";
 import classNames from "classnames";
-import Button from "../ui/components/button";
-import { noop } from "../ui/utils/noop";
-import Switch from "../ui/components/switch";
 
 export const LibraryKeySettings = () => {
   const navigate = useNavigate();

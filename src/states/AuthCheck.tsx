@@ -1,15 +1,24 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserUid } from "../services/auth";
+import { useUid } from "../services/auth";
 import Spinner from "../ui/components/spinner";
 
 export const AuthCheck = () => {
   const navigate = useNavigate();
+  const uid = useUid();
 
   useEffect(() => {
-    const uid = getUserUid();
-    navigate(uid ? "/library" : "/login");
-  }, []);
+    if (uid) {
+      navigate("/library");
+    } else {
+      const ref = setTimeout(() => {
+        navigate("/login");
+      }, 5000);
+      return () => {
+        clearTimeout(ref);
+      };
+    }
+  }, [uid]);
 
   return (
     <>

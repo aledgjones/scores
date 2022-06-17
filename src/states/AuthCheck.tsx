@@ -13,7 +13,7 @@ export const AuthCheck = () => {
     } else {
       const ref = setTimeout(() => {
         navigate("/login");
-      }, 3000);
+      }, 2000);
       return () => {
         clearTimeout(ref);
       };

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUid } from "../services/auth";
-import { supabase } from "../services/db";
 import Spinner from "../ui/components/spinner";
 
 export const AuthCheck = () => {
@@ -14,7 +13,7 @@ export const AuthCheck = () => {
     } else {
       const ref = setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 1000);
       return () => {
         clearTimeout(ref);
       };

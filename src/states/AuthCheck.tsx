@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUid } from "../services/auth";
+import { supabase } from "../services/db";
 import Spinner from "../ui/components/spinner";
 
 export const AuthCheck = () => {
@@ -10,6 +11,10 @@ export const AuthCheck = () => {
   useEffect(() => {
     if (uid) {
       navigate("/library");
+      const session = supabase.auth.session();
+      if (session?.refresh_token) {
+        supabase.auth.signIn({ refreshToken: session?.refresh_token });
+      }
     } else {
       const ref = setTimeout(() => {
         navigate("/login");

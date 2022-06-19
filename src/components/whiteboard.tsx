@@ -155,6 +155,8 @@ const Whiteboard: FC<Props> = ({
         onSave={onSave}
         onUndo={onUndo}
         onRedo={onRedo}
+        canUndo={instructions.length > 0}
+        canRedo={history.length > 0}
       />
       <canvas
         ref={canvas}

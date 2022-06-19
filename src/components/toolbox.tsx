@@ -19,6 +19,8 @@ interface Props {
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
 export const Toolbox: FC<Props> = ({
@@ -28,6 +30,8 @@ export const Toolbox: FC<Props> = ({
   onUndo,
   onRedo,
   onSave,
+  canUndo,
+  canRedo,
 }) => {
   if (!isDrawing) {
     return null;
@@ -64,10 +68,20 @@ export const Toolbox: FC<Props> = ({
           <Icon path={mdiEraserVariant} size={1} />
         </IconButton>
         <div className="spacer" />
-        <IconButton onClick={onUndo} className="margin" ariaLabel="Undo">
+        <IconButton
+          disabled={!canUndo}
+          onClick={onUndo}
+          className="margin"
+          ariaLabel="Undo"
+        >
           <Icon path={mdiUndoVariant} size={1} />
         </IconButton>
-        <IconButton onClick={onRedo} className="margin" ariaLabel="Redo">
+        <IconButton
+          disabled={!canRedo}
+          onClick={onRedo}
+          className="margin"
+          ariaLabel="Redo"
+        >
           <Icon path={mdiRedoVariant} size={1} />
         </IconButton>
         <div className="spacer" />

@@ -10,6 +10,9 @@ interface Props {
   isCurrent: boolean;
   isNext: boolean;
   tool: Tool;
+  isDrawing: boolean;
+  onChange: (tool: Tool) => void;
+  onSave: () => void;
   scoreKey: string;
   partKey: string;
   page: number;
@@ -19,6 +22,9 @@ export const Page: FC<Props> = ({
   src,
   overview,
   tool,
+  isDrawing,
+  onSave,
+  onChange,
   isPrevious,
   isCurrent,
   isNext,
@@ -55,6 +61,9 @@ export const Page: FC<Props> = ({
           page={page}
           width={width}
           height={height}
+          onChange={onChange}
+          onSave={onSave}
+          isDrawing={isDrawing}
         />
       </div>
       <style jsx>{`

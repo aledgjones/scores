@@ -1,4 +1,11 @@
-import { mdiCheck, mdiCursorPointer, mdiEraserVariant, mdiPen } from "@mdi/js";
+import {
+  mdiCheck,
+  mdiCursorPointer,
+  mdiEraserVariant,
+  mdiPen,
+  mdiRedoVariant,
+  mdiUndoVariant,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
 import { FC } from "react";
@@ -9,10 +16,19 @@ interface Props {
   isDrawing: boolean;
   tool: Tool;
   onChange: (value: Tool) => void;
+  onUndo: () => void;
+  onRedo: () => void;
   onSave: () => void;
 }
 
-export const Toolbox: FC<Props> = ({ isDrawing, tool, onChange, onSave }) => {
+export const Toolbox: FC<Props> = ({
+  isDrawing,
+  tool,
+  onChange,
+  onUndo,
+  onRedo,
+  onSave,
+}) => {
   if (!isDrawing) {
     return null;
   }
@@ -48,13 +64,13 @@ export const Toolbox: FC<Props> = ({ isDrawing, tool, onChange, onSave }) => {
           <Icon path={mdiEraserVariant} size={1} />
         </IconButton>
         <div className="spacer" />
-        {/* <IconButton onClick={noop} className="margin" ariaLabel="Undo">
+        <IconButton onClick={onUndo} className="margin" ariaLabel="Undo">
           <Icon path={mdiUndoVariant} size={1} />
         </IconButton>
-        <IconButton onClick={noop} className="margin" ariaLabel="Redo">
+        <IconButton onClick={onRedo} className="margin" ariaLabel="Redo">
           <Icon path={mdiRedoVariant} size={1} />
         </IconButton>
-        <div className="spacer" /> */}
+        <div className="spacer" />
         <IconButton onClick={onSave} className="save" ariaLabel="Save">
           <Icon path={mdiCheck} size={1} />
         </IconButton>
@@ -75,6 +91,7 @@ export const Toolbox: FC<Props> = ({ isDrawing, tool, onChange, onSave }) => {
           border-radius: 24px;
           z-index: 2000;
           background-color: #fff;
+          pointer-events: all;
         }
         .toolbox :global(.margin) {
           margin-bottom: 12px;

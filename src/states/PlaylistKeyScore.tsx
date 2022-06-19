@@ -18,7 +18,6 @@ import {
   ui,
 } from "../services/ui";
 import { usePDF } from "../services/pdf";
-import { Toolbox } from "../components/toolbox";
 import IconButton from "../ui/components/icon-button";
 import { Page } from "../components/page";
 
@@ -82,15 +81,6 @@ export const PlaylistKeyScore = () => {
 
   return (
     <>
-      <Toolbox
-        isDrawing={isDrawing}
-        tool={tool}
-        onChange={setTool}
-        onSave={() => {
-          setIsDrawing(false);
-          setOverview(false);
-        }}
-      />
       <div className={classNames("view", { "view--overview": overview })}>
         {!isDrawing && (
           <>
@@ -148,9 +138,15 @@ export const PlaylistKeyScore = () => {
               src={pages[index]}
               overview={overview}
               tool={tool}
+              isDrawing={isDrawing}
               scoreKey={scoreKey}
               partKey={partKey}
               page={index}
+              onChange={setTool}
+              onSave={() => {
+                setIsDrawing(false);
+                setOverview(false);
+              }}
             />
           );
         })}

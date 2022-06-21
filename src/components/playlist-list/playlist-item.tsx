@@ -141,6 +141,7 @@ const PlaylistItem: FC<Props> = ({
           position: relative;
           height: 100%;
           overflow: hidden;
+          touch-action: none;
         }
         .background {
           position: absolute;

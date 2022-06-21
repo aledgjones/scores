@@ -100,6 +100,7 @@ const FilesListItem: FC<Props> = ({
           display: flex;
           align-items: center;
           padding: 10px 15px;
+          touch-action: none;
         }
         .meta {
           margin: 0 16px;

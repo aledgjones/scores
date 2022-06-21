@@ -5,15 +5,12 @@ import Subheader from "../../ui/components/subheader";
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
@@ -38,12 +35,7 @@ const PlaylistList: FC<Props> = ({
   inline,
   onSortEnd,
 }) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event) => {
     const { active, over } = event;

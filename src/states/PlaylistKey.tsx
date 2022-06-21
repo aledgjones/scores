@@ -19,7 +19,7 @@ export function PlaylistKey() {
     });
   };
 
-  const onSortEnd = async ({ oldIndex, newIndex }) => {
+  const onSortEnd = async (oldIndex: number, newIndex: number) => {
     if (oldIndex !== newIndex) {
       const data = arrayMove(scores, oldIndex, newIndex);
       mutate(data, false);
@@ -35,17 +35,13 @@ export function PlaylistKey() {
       <SearchBar toggled={toggled} onToggle={onToggle} />
       <div className="page">
         <PlaylistList
-          lockAxis="y"
-          transitionDuration={200}
-          useDragHandle
-          helperClass="ghost"
-          onSortEnd={onSortEnd}
           listKey="list"
           toggled={toggled}
           onToggle={onToggle}
           scores={scores}
           title={playlist?.name}
           working={working}
+          onSortEnd={onSortEnd}
         />
       </div>
       <style jsx>{`

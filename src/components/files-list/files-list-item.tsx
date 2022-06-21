@@ -2,15 +2,16 @@ import {
   mdiAlertCircle,
   mdiCheckCircle,
   mdiClose,
+  mdiDrag,
   mdiPaperclip,
 } from "@mdi/js";
 import { FC } from "react";
-import { SortableElement } from "react-sortable-hoc";
-import Handle from "../handle";
 import IconButton from "../../ui/components/icon-button";
 import Icon from "@mdi/react";
 import { FileState } from "./files-list";
 import Spinner from "../../ui/components/spinner";
+import { useSortable } from "@dnd-kit/sortable";
+import classNames from "classnames";
 
 interface Props {
   id: string;
@@ -29,10 +30,28 @@ const FilesListItem: FC<Props> = ({
   onRemove,
   onChange,
 }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
   return (
     <>
-      <div className="entry">
-        <Handle />
+      <div
+        className="entry"
+        ref={setNodeRef}
+        style={{
+          transform: transform?.y ? `translateY(${transform.y}px)` : undefined,
+          transition,
+        }}
+        {...attributes}
+      >
+        <Icon
+          {...listeners}
+          className={classNames("file-handle")}
+          path={mdiDrag}
+          size={1}
+          color="rgb(150,150,150)"
+          style={{ cursor: "grab" }}
+        />
         <div className="meta">
           <input
             value={name}
@@ -99,20 +118,12 @@ const FilesListItem: FC<Props> = ({
           font-size: 12px;
           margin-left: 4px;
         }
-        .ghost {
-          z-index: 20000;
-          box-shadow: var(--shadow-hover);
-          background-color: #fff;
-          border-radius: 8px;
-          pointer-events: all !important;
-          cursor: grab !important;
-        }
-        .ghost :global(*) {
-          pointer-events: none;
+        .entry :global(.file-handle) {
+          min-width: 24px;
         }
       `}</style>
     </>
   );
 };
 
-export default SortableElement<Props>(FilesListItem);
+export default FilesListItem;

@@ -1,15 +1,21 @@
-import { mdiDotsVertical, mdiFilePdfBox, mdiTagOutline } from "@mdi/js";
+import {
+  mdiDotsVertical,
+  mdiDrag,
+  mdiFilePdfBox,
+  mdiTagOutline,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
 import { FC } from "react";
 import { useInView } from "react-intersection-observer";
 import { PlaylistScore } from "../../services/scores";
-import { SortableElement } from "react-sortable-hoc";
 import Handle from "../handle";
 import IconButton from "../../ui/components/icon-button";
 import { openPlaylistScoreSheet } from "../../services/ui";
 import Tag from "../../ui/components/tag";
 import { Link, useParams } from "react-router-dom";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
   listKey: string;
@@ -17,7 +23,7 @@ interface Props {
   toggled?: string;
   onToggle: (key: string) => void;
   working: boolean;
-  inline: boolean;
+  inline?: boolean;
 }
 
 const PlaylistItem: FC<Props> = ({
@@ -33,6 +39,9 @@ const PlaylistItem: FC<Props> = ({
   const isToggled = toggled === toggleKey;
   const { playlistKey } = useParams();
 
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: score.playlistKey });
+
   return (
     <>
       <div
@@ -43,10 +52,32 @@ const PlaylistItem: FC<Props> = ({
         })}
       >
         {inView && (
-          <div onClick={() => onToggle(toggleKey)} className="item">
+          <div
+            ref={setNodeRef}
+            style={{
+              transform: transform?.y
+                ? `translateY(${transform.y}px)`
+                : undefined,
+              transition,
+            }}
+            {...attributes}
+            onClick={() => onToggle(toggleKey)}
+            className="item"
+          >
             <div className="background" />
             <div className="item-content">
-              {!inline && <Handle disabled={working} />}
+              {!inline && (
+                <Icon
+                  {...listeners}
+                  className={classNames("playlist-handle", {
+                    "playlist-handle--disabled": working,
+                  })}
+                  path={mdiDrag}
+                  size={1}
+                  color="rgb(150,150,150)"
+                  style={{ cursor: "grab" }}
+                />
+              )}
               <div className="info">
                 <p
                   className="title"
@@ -197,36 +228,21 @@ const PlaylistItem: FC<Props> = ({
         .info :global(.bold) {
           font-weight: bold;
         }
-        .ghost {
-          z-index: 20000;
-          box-shadow: var(--shadow-hover);
-          background-color: #fff;
-          border-radius: 8px;
-          pointer-events: all !important;
-          cursor: grab !important;
-          margin: 0 20px;
-          width: calc(100% - 40px) !important;
-          border-radius: 8px;
-          overflow: hidden;
-        }
-        .ghost :global(*) {
-          pointer-events: none;
-        }
-        .ghost .item-content {
-          padding: 0 12px 0 15px;
-        }
-        .ghost .parts {
-          padding: 8px 0 20px 56px;
-        }
         .title,
         .artist {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
+        .item :global(.playlist-handle) {
+          min-width: 24px;
+        }
+        .item :global(.playlist-handle--disabled) {
+          pointer-events: none;
+        }
       `}</style>
     </>
   );
 };
 
-export default SortableElement<Props>(PlaylistItem);
+export default PlaylistItem;

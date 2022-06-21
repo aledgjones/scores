@@ -92,7 +92,7 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
     setFiles((f) => [...f, ...newEntries]);
   };
 
-  const onSortEnd = ({ oldIndex, newIndex }) => {
+  const onSortEnd = (oldIndex: number, newIndex: number) => {
     setFiles((items) => {
       return arrayMove(items, oldIndex, newIndex);
     });
@@ -154,10 +154,6 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
           </Select>
         </CardContent>
         <FilesList
-          lockAxis="y"
-          transitionDuration={200}
-          useDragHandle
-          helperClass="ghost"
           files={files}
           working={working}
           onSortEnd={onSortEnd}

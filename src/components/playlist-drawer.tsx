@@ -34,7 +34,6 @@ const PlaylistDrawer: FC<Props> = ({ playlistKey, selection }) => {
             })
           }
           working={false}
-          useDragHandle={true}
           inline
         />
       </div>

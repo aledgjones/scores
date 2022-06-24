@@ -2,6 +2,8 @@ import {
   mdiCheck,
   mdiCursorPointer,
   mdiEraserVariant,
+  mdiMagnifyMinusOutline,
+  mdiMagnifyPlusOutline,
   mdiPen,
   mdiRedoVariant,
   mdiUndoVariant,
@@ -21,6 +23,9 @@ interface Props {
   onSave: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  scale: number;
 }
 
 export const Toolbox: FC<Props> = ({
@@ -32,6 +37,9 @@ export const Toolbox: FC<Props> = ({
   onSave,
   canUndo,
   canRedo,
+  onZoomIn,
+  onZoomOut,
+  scale,
 }) => {
   if (!isDrawing) {
     return null;
@@ -83,6 +91,18 @@ export const Toolbox: FC<Props> = ({
           ariaLabel="Redo"
         >
           <Icon path={mdiRedoVariant} size={1} />
+        </IconButton>
+        <div className="spacer" />
+        <IconButton onClick={onZoomIn} className="margin" ariaLabel="Zoom In">
+          <Icon path={mdiMagnifyPlusOutline} size={1} />
+        </IconButton>
+        <IconButton
+          disabled={scale === 1}
+          onClick={onZoomOut}
+          className="margin"
+          ariaLabel="Zoom In"
+        >
+          <Icon path={mdiMagnifyMinusOutline} size={1} />
         </IconButton>
         <div className="spacer" />
         <IconButton onClick={onSave} className="save" ariaLabel="Save">

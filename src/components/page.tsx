@@ -35,11 +35,33 @@ export const Page: FC<Props> = ({
   const [ready, setReady] = useState(false);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const onLoad = (e) => {
     setWidth(e.target.width);
     setHeight(e.target.height);
     setReady(true);
+  };
+
+  const onZoomIn = () => {
+    setScale((s) => {
+      return (s * 100 + 50) / 100;
+    });
+  };
+
+  const onZoomOut = () => {
+    setScale((s) => {
+      if (s > 1) {
+        return (s * 100 - 50) / 100;
+      } else {
+        return s;
+      }
+    });
+  };
+
+  const onMove = (x: number, y: number) => {
+    setPosition({ x, y });
   };
 
   return (
@@ -52,7 +74,13 @@ export const Page: FC<Props> = ({
           next: isNext,
         })}
       >
-        {src && <img onLoad={onLoad} className="page" src={src} />}
+        {src && (
+          <img
+            onLoad={onLoad}
+            className={classNames("page", { "page--no-transition": isDrawing })}
+            src={src}
+          />
+        )}
         <Whiteboard
           ready={ready}
           tool={tool}
@@ -62,8 +90,17 @@ export const Page: FC<Props> = ({
           width={width}
           height={height}
           onChange={onChange}
-          onSave={onSave}
+          onSave={() => {
+            setScale(1);
+            setPosition({ x: 0, y: 0 });
+            onSave();
+          }}
           isDrawing={isDrawing}
+          scale={scale}
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          onPositionChange={onMove}
+          position={position}
         />
       </div>
       <style jsx>{`
@@ -85,7 +122,13 @@ export const Page: FC<Props> = ({
           border-radius: 8px;
           box-shadow: 0 2px 5px 0 rgba(25, 25, 25, 0),
             0 3px 4px -2px rgba(25, 25, 25, 0), 0 1px 8px 0 rgba(25, 25, 25, 0);
-          transition: box-shadow 0.2s, max-height 0.2s, max-width 0.2s;
+          transform: scale(${scale})
+            translate(${position.x / scale}px, ${position.y / scale}px);
+          transition: box-shadow 0.2s, max-height 0.2s, max-width 0.2s,
+            transform 0.2s;
+        }
+        .page--no-transition {
+          transition: none;
         }
         .area--overview .page {
           box-shadow: var(--shadow);

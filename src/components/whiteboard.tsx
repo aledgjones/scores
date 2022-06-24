@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { useEffect, useRef, FC, PointerEvent, useState } from "react";
 import {
   Color,
@@ -23,6 +24,11 @@ interface Props {
   page: number;
   onChange: (tool: Tool) => void;
   onSave: () => void;
+  scale: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onPositionChange: (x: number, y: number) => void;
+  position: { x: number; y: number };
 }
 
 const Whiteboard: FC<Props> = ({
@@ -36,6 +42,11 @@ const Whiteboard: FC<Props> = ({
   scoreKey,
   partKey,
   page,
+  scale,
+  onZoomIn,
+  onZoomOut,
+  onPositionChange,
+  position,
 }) => {
   const canvas = useRef<HTMLCanvasElement>();
   const isActive = useRef<boolean>(false);
@@ -76,16 +87,14 @@ const Whiteboard: FC<Props> = ({
     render();
   }, [canvas, height, width, instructions]);
 
-  const onStart = (e: PointerEvent<HTMLCanvasElement>) => {
-    if (!canvas.current || !ready || tool === Tool.cursor || isActive.current) {
-      return false;
-    }
-
-    isActive.current = true;
+  const onDraw = (
+    e: PointerEvent<HTMLCanvasElement>,
+    canvas: HTMLCanvasElement
+  ) => {
     render();
 
-    const box = canvas.current.getBoundingClientRect();
-    const scale = box.width / canvas.current.width;
+    const box = canvas.getBoundingClientRect();
+    const scale = box.width / canvas.width;
 
     const point: DrawPoint = [
       Math.floor((e.clientX - box.left) / scale),
@@ -124,6 +133,48 @@ const Whiteboard: FC<Props> = ({
     document.addEventListener("pointercancel", onEnd);
   };
 
+  const onDrag = (e: PointerEvent<HTMLCanvasElement>) => {
+    const start = { x: e.screenX, y: e.screenY };
+    const box = { ...position };
+
+    const onMove = (event) => {
+      onPositionChange(
+        box.x + event.screenX - start.x,
+        box.y + event.screenY - start.y
+      );
+    };
+
+    const onEnd = () => {
+      isActive.current = false;
+
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", onEnd);
+      document.removeEventListener("pointercancel", onEnd);
+    };
+
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onEnd);
+    document.addEventListener("pointercancel", onEnd);
+  };
+
+  const onStart = (e: PointerEvent<HTMLCanvasElement>) => {
+    if (!canvas.current || !ready || isActive.current) {
+      return false;
+    }
+
+    isActive.current = true;
+
+    switch (tool) {
+      case Tool.pen:
+      case Tool.eraser:
+        onDraw(e, canvas.current);
+        break;
+      default:
+        onDrag(e);
+        break;
+    }
+  };
+
   const onUndo = () => {
     setHistory((state) => {
       return [...state, ...instructions.slice(-1)];
@@ -157,12 +208,17 @@ const Whiteboard: FC<Props> = ({
         onRedo={onRedo}
         canUndo={instructions.length > 0}
         canRedo={history.length > 0}
+        onZoomIn={onZoomIn}
+        onZoomOut={onZoomOut}
+        scale={scale}
       />
       <canvas
         ref={canvas}
         height={(height || 0) * window.devicePixelRatio}
         width={(width || 0) * window.devicePixelRatio}
-        className="whiteboard"
+        className={classNames("whiteboard", {
+          "whiteboard--no-transition": isDrawing,
+        })}
         onPointerDown={onStart}
       />
       <style jsx>{`
@@ -171,10 +227,18 @@ const Whiteboard: FC<Props> = ({
           top: 50%;
           left: 50%;
           z-index: 1000;
-          transform: translate(-50%, -50%);
-          transition: max-height 0.2s, max-width 0.2s;
+          transform-origin: 0 0;
+          transform: scale(${scale})
+            translate(
+              calc(-50% + ${position.x / scale}px),
+              calc(-50% + ${position.y / scale}px)
+            );
+          transition: max-height 0.2s, max-width 0.2s, transform 0.2s;
           touch-action: none;
           aspect-ratio: ${width} / ${height};
+        }
+        .whiteboard--no-transition {
+          transition: none;
         }
       `}</style>
     </>

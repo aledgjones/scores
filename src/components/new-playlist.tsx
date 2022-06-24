@@ -3,7 +3,12 @@ import Modal from "../ui/components/modal";
 import CardContent from "../ui/components/card-content";
 import Input from "../ui/components/input";
 import Button from "../ui/components/button";
-import { createPlaylist, Playlist, usePlaylists } from "../services/playlists";
+import {
+  createPlaylist,
+  Playlist,
+  updatePlaylist,
+  usePlaylists,
+} from "../services/playlists";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -20,9 +25,13 @@ const NewPlaylist: FC<Props> = ({ onClose, playlist }) => {
 
   const onCreate = async () => {
     try {
-      const key = await createPlaylist(name);
+      if (playlist) {
+        await updatePlaylist(playlist.key, name);
+      } else {
+        const key = await createPlaylist(name);
+        navigate(`/playlist/${key}`);
+      }
       mutate();
-      navigate(`/playlist/${key}`);
       onClose();
     } catch (err) {
       toast.error(err.message);

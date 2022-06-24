@@ -8,6 +8,7 @@ import { Login } from "./states/Login";
 import { NotFound } from "./states/NotFound";
 import { PlaylistKey } from "./states/PlaylistKey";
 import { PlaylistKeyScore } from "./states/PlaylistKeyScore";
+import { PlaylistKeySettings } from "./states/PlaylistKeySettings";
 import { ScorePage } from "./states/ScorePage";
 import { Settings } from "./states/Settings";
 import { Signup } from "./states/Signup";
@@ -32,6 +33,10 @@ export const Router = () => {
           <Route path="/score/:scoreKey/:partKey" element={<ScorePage />} />
 
           <Route path="/playlist/:playlistKey" element={<PlaylistKey />} />
+          <Route
+            path="/playlist/:playlistKey/settings"
+            element={<PlaylistKeySettings />}
+          />
           <Route
             path="/playlist/:playlistKey/:playlistScoreKey/:scoreKey/:partKey"
             element={<PlaylistKeyScore />}

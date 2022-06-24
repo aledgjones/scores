@@ -2,6 +2,7 @@ import {
   mdiArrowLeft,
   mdiClose,
   mdiDotsVertical,
+  mdiOpenInNew,
   mdiPencilOutline,
 } from "@mdi/js";
 import Icon from "@mdi/react";
@@ -27,6 +28,10 @@ import { stringToColor } from "../ui/utils/string-to-color";
 import useScrollPosition from "../ui/utils/use-scroll-position";
 import Tooltip from "../ui/components/tooltip";
 import classNames from "classnames";
+import Button from "../ui/components/button";
+import { noop } from "../ui/utils/noop";
+import Switch from "../ui/components/switch";
+import fileSize from "file-size";
 
 export const LibraryKeySettings = () => {
   const navigate = useNavigate();
@@ -55,7 +60,7 @@ export const LibraryKeySettings = () => {
     return out;
   }, 0);
 
-  const max = 50 * 1024 * 1024;
+  const max = 60 * 1024 * 1024;
   const percent = (usage / max) * 100;
 
   return (
@@ -94,7 +99,7 @@ export const LibraryKeySettings = () => {
             </div>
           </div>
         </section>
-        {/* {isOwner && (
+        {isOwner && (
           <section className="section">
             <Subheader>Billing Plan</Subheader>
             <div className="hero-content">
@@ -103,7 +108,7 @@ export const LibraryKeySettings = () => {
               </p>
             </div>
             <div className="buttons">
-              <Button compact primary onClick={noop}>
+              <Button margin compact primary onClick={noop}>
                 Modify plan
               </Button>
               <Button outline compact onClick={noop}>
@@ -116,8 +121,8 @@ export const LibraryKeySettings = () => {
               </Button>
             </div>
           </section>
-        )} */}
-        {/* {isOwner && (
+        )}
+        {isOwner && (
           <section className="section">
             <Subheader>Online Storage</Subheader>
             <div className="meter">
@@ -133,33 +138,7 @@ export const LibraryKeySettings = () => {
               </div>
             </div>
           </section>
-        )} */}
-        {/* <section className="section">
-          <Subheader>Offline Storage</Subheader>
-          <div className="item hoverable">
-            <div>
-              <p>Automatically download all scores in this library</p>
-              <p className="label">
-                Scores will not be automatically downloaded when added to this
-                library.
-              </p>
-            </div>
-            <Switch value={true} />
-          </div>
-          <div
-            className={classNames("item", "hoverable", {
-              "item--disabled": true,
-            })}
-          >
-            <div>
-              <p>Free up space used by this library</p>
-              <p className="label">
-                Remove downloaded scores in this library from this device. They
-                will no longer be available offline.
-              </p>
-            </div>
-          </div>
-        </section> */}
+        )}
         <section className="section">
           <Subheader>Members</Subheader>
           {members.map((user) => {

@@ -76,6 +76,71 @@ export const createPlaylist = async (name: string) => {
   return key;
 };
 
+export const updatePlaylist = async (playlistKey: string, name: string) => {
+  const uid = getUserUid();
+
+  if (!uid || !playlistKey) {
+    throw new Error("Something went wrong");
+  }
+  if (!name) {
+    throw new Error("Please provide a name for your playlist");
+  }
+
+  const { error } = await supabase
+    .from("playlists")
+    .update([{ name }])
+    .eq("key", playlistKey);
+
+  if (error) {
+    throw error;
+  }
+
+  return playlistKey;
+};
+
+export const deletePlaylist = async (playlistKey: string) => {
+  const uid = getUserUid();
+
+  if (!uid || !playlistKey) {
+    throw new Error("Something went wrong");
+  }
+
+  {
+    const { error } = await supabase
+      .from("playlist_members")
+      .delete()
+      .eq("playlist", playlistKey);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  {
+    const { error } = await supabase
+      .from("playlist_scores")
+      .delete()
+      .eq("playlist", playlistKey);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  {
+    const { error } = await supabase
+      .from("playlists")
+      .delete()
+      .eq("key", playlistKey);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  return playlistKey;
+};
+
 export const addToPlaylist = async (playlistKey: string, scoreKey: string) => {
   const { data: orderData, error: orderError } = await supabase
     .from("playlist_scores")

@@ -1,8 +1,14 @@
 import classNames from "classnames";
-import { useEffect, useRef, FC, PointerEvent, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  FC,
+  PointerEvent,
+  Dispatch,
+  SetStateAction,
+} from "react";
 import {
   Color,
-  DrawInstruction,
   DrawInstructions,
   drawLine,
   DrawPoint,
@@ -11,7 +17,8 @@ import {
 } from "../services/canvas";
 import { Tool } from "../services/ui";
 import { useClientsideEffect } from "../ui/utils/use-clientside-effect";
-import { Toolbox } from "./toolbox";
+
+const DPR = window.devicePixelRatio;
 
 interface Props {
   ready: boolean;
@@ -22,13 +29,13 @@ interface Props {
   scoreKey: string;
   partKey: string;
   page: number;
-  onChange: (tool: Tool) => void;
-  onSave: () => void;
-  scale: number;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
-  onPositionChange: (x: number, y: number) => void;
   position: { x: number; y: number };
+  setPosition: Dispatch<SetStateAction<{ x: number; y: number }>>;
+  setDragging: Dispatch<SetStateAction<boolean>>;
+  instructions: DrawInstructions;
+  setInstructions: Dispatch<SetStateAction<DrawInstructions>>;
+  clearHistory: () => void;
+  scale: number;
 }
 
 const Whiteboard: FC<Props> = ({
@@ -37,26 +44,23 @@ const Whiteboard: FC<Props> = ({
   width,
   tool,
   isDrawing,
-  onChange,
-  onSave,
   scoreKey,
   partKey,
   page,
-  scale,
-  onZoomIn,
-  onZoomOut,
-  onPositionChange,
   position,
+  setPosition,
+  setDragging,
+  instructions,
+  setInstructions,
+  clearHistory,
+  scale,
 }) => {
-  const canvas = useRef<HTMLCanvasElement>();
+  const canvas = useRef<HTMLCanvasElement>(null);
   const isActive = useRef<boolean>(false);
-  const [instructions, setInstructions] = useState<DrawInstructions>([]);
-  const [history, setHistory] = useState<DrawInstruction[]>([]);
 
   // these need to be props
   const color = Color.black;
-  const thickness =
-    tool === Tool.pen ? window.devicePixelRatio : 20 * window.devicePixelRatio;
+  const thickness = tool === Tool.pen ? 1 * DPR : 20 * DPR;
 
   const render = () => {
     const ctx = canvas.current?.getContext("2d");
@@ -100,7 +104,7 @@ const Whiteboard: FC<Props> = ({
       Math.floor((e.clientX - box.left) / scale),
       Math.floor((e.clientY - box.top) / scale),
     ];
-    setHistory([]);
+    clearHistory();
     setInstructions((state) => {
       return [...state, [tool, color, thickness, [point]]];
     });
@@ -137,15 +141,19 @@ const Whiteboard: FC<Props> = ({
     const start = { x: e.screenX, y: e.screenY };
     const box = { ...position };
 
+    setDragging(true);
+
     const onMove = (event) => {
-      onPositionChange(
-        box.x + event.screenX - start.x,
-        box.y + event.screenY - start.y
-      );
+      setPosition({
+        x: box.x + (event.screenX - start.x) / scale,
+        y: box.y + (event.screenY - start.y) / scale,
+      });
     };
 
     const onEnd = () => {
       isActive.current = false;
+
+      setDragging(false);
 
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onEnd);
@@ -175,47 +183,12 @@ const Whiteboard: FC<Props> = ({
     }
   };
 
-  const onUndo = () => {
-    setHistory((state) => {
-      return [...state, ...instructions.slice(-1)];
-    });
-    setInstructions((state) => {
-      const next = state.slice(0, -1);
-      storeAnnotation(scoreKey, partKey, page, next);
-      return next;
-    });
-  };
-
-  const onRedo = () => {
-    setInstructions((state) => {
-      const next = [...state, ...history.slice(-1)];
-      storeAnnotation(scoreKey, partKey, page, next);
-      return next;
-    });
-    setHistory((state) => {
-      return state.slice(0, -1);
-    });
-  };
-
   return (
     <>
-      <Toolbox
-        tool={tool}
-        isDrawing={isDrawing}
-        onChange={onChange}
-        onSave={onSave}
-        onUndo={onUndo}
-        onRedo={onRedo}
-        canUndo={instructions.length > 0}
-        canRedo={history.length > 0}
-        onZoomIn={onZoomIn}
-        onZoomOut={onZoomOut}
-        scale={scale}
-      />
       <canvas
         ref={canvas}
-        height={(height || 0) * window.devicePixelRatio}
-        width={(width || 0) * window.devicePixelRatio}
+        height={(height || 0) * DPR}
+        width={(width || 0) * DPR}
         className={classNames("whiteboard", {
           "whiteboard--no-transition": isDrawing,
         })}
@@ -228,17 +201,10 @@ const Whiteboard: FC<Props> = ({
           left: 50%;
           z-index: 1000;
           transform-origin: 0 0;
-          transform: scale(${scale})
-            translate(
-              calc(-50% + ${position.x / scale}px),
-              calc(-50% + ${position.y / scale}px)
-            );
+          transform: translate(-50%, -50%);
           transition: max-height 0.2s, max-width 0.2s, transform 0.2s;
           touch-action: none;
           aspect-ratio: ${width} / ${height};
-        }
-        .whiteboard--no-transition {
-          transition: none;
         }
       `}</style>
     </>

@@ -1,18 +1,11 @@
 import {
   mdiCheck,
   mdiCircle,
-  mdiCircleOpacity,
-  mdiColorHelper,
-  mdiCursorPointer,
+  mdiCursorDefault,
   mdiEraserVariant,
-  mdiFormatColorFill,
-  mdiInvertColors,
   mdiMagnifyMinusOutline,
   mdiMagnifyPlusOutline,
   mdiPen,
-  mdiRadioactive,
-  mdiRadioboxBlank,
-  mdiRadioboxMarked,
   mdiRedoVariant,
   mdiUndoVariant,
 } from "@mdi/js";
@@ -36,6 +29,7 @@ interface Props {
   onZoomOut: () => void;
   scale: number;
   onChangeColor: (value: Color) => void;
+  color: Color;
 }
 
 export const Toolbox: FC<Props> = ({
@@ -51,6 +45,7 @@ export const Toolbox: FC<Props> = ({
   onZoomOut,
   scale,
   onChangeColor,
+  color,
 }) => {
   const [colorOpen, setColorOpen] = useState(false);
 
@@ -111,7 +106,7 @@ export const Toolbox: FC<Props> = ({
           })}
           ariaLabel="Cursor tool"
         >
-          <Icon path={mdiCursorPointer} size={1} />
+          <Icon path={mdiCursorDefault} size={1} />
         </IconButton>
         <IconButton
           onClick={() => {
@@ -121,7 +116,7 @@ export const Toolbox: FC<Props> = ({
               onChangeTool(Tool.pen);
             }
           }}
-          className={classNames("margin", {
+          className={classNames("margin", "pen", {
             "icon--selected": tool === Tool.pen,
           })}
           ariaLabel="Pencil tool"
@@ -189,15 +184,28 @@ export const Toolbox: FC<Props> = ({
           z-index: 2000;
           background-color: #fff;
           pointer-events: all;
-          overflow: hidden;
         }
         .color-picker {
-          left: 72px;
-          transform: translateY(calc(-50% - 132px));
+          left: 76px;
+          z-index: 2001;
         }
         .toolbox :global(.margin),
         .color-picker :global(.margin) {
           margin-bottom: 12px;
+        }
+        .toolbox :global(.pen:after) {
+          position: absolute;
+          top: calc(50% - 2px);
+          left: 28px;
+          content: "";
+          height: 0;
+          width: 0;
+          border-top: 4px solid transparent;
+          border-left: 4px solid black;
+          border-bottom: 4px solid transparent;
+        }
+        .toolbox :global(.pen.icon--selected:after) {
+          left: 34px;
         }
         .toolbox :global(.icon--selected) {
           background-color: var(--black) !important;

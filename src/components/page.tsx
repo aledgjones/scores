@@ -122,6 +122,7 @@ export const Page: FC<Props> = ({
             onZoomIn={onZoomIn}
             onZoomOut={onZoomOut}
             scale={scale}
+            color={color}
           />
         )}
         <div className="zoom">

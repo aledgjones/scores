@@ -186,8 +186,8 @@ const Whiteboard: FC<Props> = ({
     <>
       <canvas
         ref={canvas}
-        height={(height || 0) * DPR}
-        width={(width || 0) * DPR}
+        height={height || 0}
+        width={width || 0}
         className={classNames("whiteboard", {
           "whiteboard--no-transition": isDrawing,
         })}

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC, useState } from "react";
+import { FC, SyntheticEvent, useState } from "react";
 import {
   DrawInstruction,
   DrawInstructions,
@@ -49,8 +49,8 @@ export const Page: FC<Props> = ({
   const [history, setHistory] = useState<DrawInstruction[]>([]);
 
   const onLoad = (e) => {
-    setWidth(e.target.width);
-    setHeight(e.target.height);
+    setWidth(e.target.naturalWidth);
+    setHeight(e.target.naturalHeight);
     setReady(true);
   };
 

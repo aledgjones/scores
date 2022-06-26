@@ -35,7 +35,7 @@ interface Props {
   instructions: DrawInstructions;
   setInstructions: Dispatch<SetStateAction<DrawInstructions>>;
   clearHistory: () => void;
-  scale: number;
+  zoom: number;
 }
 
 const Whiteboard: FC<Props> = ({
@@ -53,20 +53,22 @@ const Whiteboard: FC<Props> = ({
   instructions,
   setInstructions,
   clearHistory,
-  scale,
+  zoom,
 }) => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const isActive = useRef<boolean>(false);
 
   // these need to be props
   const color = Color.black;
-  const thickness = tool === Tool.pen ? 1 * DPR : 20 * DPR;
+  const thickness = tool === Tool.pen ? DPR : 20 * DPR;
 
   const render = () => {
-    const ctx = canvas.current?.getContext("2d");
-    if (ctx) {
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      instructions.forEach((instruction) => drawLine(instruction, ctx));
+    if (canvas.current) {
+      const ctx = canvas.current.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        instructions.forEach((instruction) => drawLine(instruction, ctx));
+      }
     }
 
     if (isActive.current) {
@@ -95,14 +97,11 @@ const Whiteboard: FC<Props> = ({
     e: PointerEvent<HTMLCanvasElement>,
     canvas: HTMLCanvasElement
   ) => {
-    render();
-
     const box = canvas.getBoundingClientRect();
-    const scale = box.width / canvas.width;
 
     const point: DrawPoint = [
-      Math.floor((e.clientX - box.left) / scale),
-      Math.floor((e.clientY - box.top) / scale),
+      (e.clientX - box.left) / box.width,
+      (e.clientY - box.top) / box.height,
     ];
     clearHistory();
     setInstructions((state) => {
@@ -111,8 +110,8 @@ const Whiteboard: FC<Props> = ({
 
     const onMove = (event) => {
       const point: DrawPoint = [
-        Math.floor((event.clientX - box.left) / scale),
-        Math.floor((event.clientY - box.top) / scale),
+        (event.clientX - box.left) / box.width,
+        (event.clientY - box.top) / box.height,
       ];
       setInstructions((state) => {
         state[state.length - 1][3].push(point);
@@ -145,8 +144,8 @@ const Whiteboard: FC<Props> = ({
 
     const onMove = (event) => {
       setPosition({
-        x: box.x + (event.screenX - start.x) / scale,
-        y: box.y + (event.screenY - start.y) / scale,
+        x: box.x + (event.screenX - start.x) / zoom,
+        y: box.y + (event.screenY - start.y) / zoom,
       });
     };
 

@@ -41,9 +41,9 @@ export const drawLine = (
   for (let i = 0; i < points.length; i++) {
     const [x, y] = points[i];
     if (i === 0) {
-      ctx.moveTo(x, y);
+      ctx.moveTo(x * ctx.canvas.width, y * ctx.canvas.height);
     } else {
-      ctx.lineTo(x, y);
+      ctx.lineTo(x * ctx.canvas.width, y * ctx.canvas.height);
     }
   }
   ctx.stroke();

@@ -145,7 +145,7 @@ export const Page: FC<Props> = ({
               instructions={instructions}
               setInstructions={setInstructions}
               clearHistory={() => setHistory([])}
-              scale={scale}
+              zoom={scale}
             />
           </div>
         </div>

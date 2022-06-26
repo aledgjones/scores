@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "parcel --port 3000",
     "build": "parcel build",
-    "deploy": "npm version patch & git push"
+    "deploy": "npm version patch && git push"
   },
   "author": "Aled Jones",
   "license": "MIT",

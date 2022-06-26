@@ -119,7 +119,7 @@ export const ScorePage = () => {
               scoreKey={scoreKey}
               partKey={partKey}
               page={index}
-              onChange={setTool}
+              onChangeTool={setTool}
               onSave={() => {
                 setIsDrawing(false);
                 setOverview(false);

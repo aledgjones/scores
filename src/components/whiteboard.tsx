@@ -36,6 +36,7 @@ interface Props {
   setInstructions: Dispatch<SetStateAction<DrawInstructions>>;
   clearHistory: () => void;
   zoom: number;
+  color: Color;
 }
 
 const Whiteboard: FC<Props> = ({
@@ -54,12 +55,12 @@ const Whiteboard: FC<Props> = ({
   setInstructions,
   clearHistory,
   zoom,
+  color,
 }) => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const isActive = useRef<boolean>(false);
 
   // these need to be props
-  const color = Color.black;
   const thickness = tool === Tool.pen ? DPR : 20 * DPR;
 
   const render = () => {

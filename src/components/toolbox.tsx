@@ -1,23 +1,32 @@
 import {
   mdiCheck,
+  mdiCircle,
+  mdiCircleOpacity,
+  mdiColorHelper,
   mdiCursorPointer,
   mdiEraserVariant,
+  mdiFormatColorFill,
+  mdiInvertColors,
   mdiMagnifyMinusOutline,
   mdiMagnifyPlusOutline,
   mdiPen,
+  mdiRadioactive,
+  mdiRadioboxBlank,
+  mdiRadioboxMarked,
   mdiRedoVariant,
   mdiUndoVariant,
 } from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
-import { FC } from "react";
+import { FC, useState } from "react";
+import { Color } from "../services/canvas";
 import { Tool } from "../services/ui";
 import IconButton from "../ui/components/icon-button";
 
 interface Props {
   isDrawing: boolean;
   tool: Tool;
-  onChange: (value: Tool) => void;
+  onChangeTool: (value: Tool) => void;
   onUndo: () => void;
   onRedo: () => void;
   onSave: () => void;
@@ -26,12 +35,13 @@ interface Props {
   onZoomIn: () => void;
   onZoomOut: () => void;
   scale: number;
+  onChangeColor: (value: Color) => void;
 }
 
 export const Toolbox: FC<Props> = ({
   isDrawing,
   tool,
-  onChange,
+  onChangeTool,
   onUndo,
   onRedo,
   onSave,
@@ -40,16 +50,62 @@ export const Toolbox: FC<Props> = ({
   onZoomIn,
   onZoomOut,
   scale,
+  onChangeColor,
 }) => {
+  const [colorOpen, setColorOpen] = useState(false);
+
   if (!isDrawing) {
     return null;
   }
 
   return (
     <>
+      {colorOpen && (
+        <div className="color-picker">
+          <IconButton
+            onClick={() => {
+              onChangeColor(Color.black);
+              setColorOpen(false);
+            }}
+            className="margin"
+            ariaLabel="Black"
+          >
+            <Icon path={mdiCircle} size={1} color={Color.black} />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              onChangeColor(Color.red);
+              setColorOpen(false);
+            }}
+            className="margin"
+            ariaLabel="Black"
+          >
+            <Icon path={mdiCircle} size={1} color={Color.red} />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              onChangeColor(Color.green);
+              setColorOpen(false);
+            }}
+            className="margin"
+            ariaLabel="Black"
+          >
+            <Icon path={mdiCircle} size={1} color={Color.green} />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              onChangeColor(Color.blue);
+              setColorOpen(false);
+            }}
+            ariaLabel="Black"
+          >
+            <Icon path={mdiCircle} size={1} color={Color.blue} />
+          </IconButton>
+        </div>
+      )}
       <div className="toolbox">
         <IconButton
-          onClick={() => onChange(Tool.cursor)}
+          onClick={() => onChangeTool(Tool.cursor)}
           className={classNames("margin", {
             "icon--selected": tool === Tool.cursor,
           })}
@@ -58,7 +114,13 @@ export const Toolbox: FC<Props> = ({
           <Icon path={mdiCursorPointer} size={1} />
         </IconButton>
         <IconButton
-          onClick={() => onChange(Tool.pen)}
+          onClick={() => {
+            if (tool === Tool.pen) {
+              setColorOpen((s) => !s);
+            } else {
+              onChangeTool(Tool.pen);
+            }
+          }}
           className={classNames("margin", {
             "icon--selected": tool === Tool.pen,
           })}
@@ -67,7 +129,7 @@ export const Toolbox: FC<Props> = ({
           <Icon path={mdiPen} size={1} />
         </IconButton>
         <IconButton
-          onClick={() => onChange(Tool.eraser)}
+          onClick={() => onChangeTool(Tool.eraser)}
           className={classNames("margin", {
             "icon--selected": tool === Tool.eraser,
           })}
@@ -110,7 +172,8 @@ export const Toolbox: FC<Props> = ({
         </IconButton>
       </div>
       <style jsx>{`
-        .toolbox {
+        .toolbox,
+        .color-picker {
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -126,8 +189,14 @@ export const Toolbox: FC<Props> = ({
           z-index: 2000;
           background-color: #fff;
           pointer-events: all;
+          overflow: hidden;
         }
-        .toolbox :global(.margin) {
+        .color-picker {
+          left: 72px;
+          transform: translateY(calc(-50% - 132px));
+        }
+        .toolbox :global(.margin),
+        .color-picker :global(.margin) {
           margin-bottom: 12px;
         }
         .toolbox :global(.icon--selected) {

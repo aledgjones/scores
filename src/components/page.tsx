@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { FC, SyntheticEvent, useState } from "react";
 import {
+  Color,
   DrawInstruction,
   DrawInstructions,
   storeAnnotation,
@@ -17,7 +18,7 @@ interface Props {
   isNext: boolean;
   tool: Tool;
   isDrawing: boolean;
-  onChange: (tool: Tool) => void;
+  onChangeTool: (tool: Tool) => void;
   onSave: () => void;
   scoreKey: string;
   partKey: string;
@@ -30,7 +31,7 @@ export const Page: FC<Props> = ({
   tool,
   isDrawing,
   onSave,
-  onChange,
+  onChangeTool,
   isPrevious,
   isCurrent,
   isNext,
@@ -44,6 +45,7 @@ export const Page: FC<Props> = ({
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
+  const [color, setColor] = useState(Color.black);
 
   const [instructions, setInstructions] = useState<DrawInstructions>([]);
   const [history, setHistory] = useState<DrawInstruction[]>([]);
@@ -102,23 +104,26 @@ export const Page: FC<Props> = ({
           next: isNext,
         })}
       >
-        <Toolbox
-          tool={tool}
-          isDrawing={isDrawing}
-          onChange={onChange}
-          onSave={() => {
-            setScale(1);
-            setPosition({ x: 0, y: 0 });
-            onSave();
-          }}
-          onUndo={onUndo}
-          onRedo={onRedo}
-          canUndo={instructions.length > 0}
-          canRedo={history.length > 0}
-          onZoomIn={onZoomIn}
-          onZoomOut={onZoomOut}
-          scale={scale}
-        />
+        {isCurrent && (
+          <Toolbox
+            tool={tool}
+            isDrawing={isDrawing}
+            onChangeTool={onChangeTool}
+            onChangeColor={setColor}
+            onSave={() => {
+              setScale(1);
+              setPosition({ x: 0, y: 0 });
+              onSave();
+            }}
+            onUndo={onUndo}
+            onRedo={onRedo}
+            canUndo={instructions.length > 0}
+            canRedo={history.length > 0}
+            onZoomIn={onZoomIn}
+            onZoomOut={onZoomOut}
+            scale={scale}
+          />
+        )}
         <div className="zoom">
           <div className="position">
             {src && (
@@ -146,6 +151,7 @@ export const Page: FC<Props> = ({
               setInstructions={setInstructions}
               clearHistory={() => setHistory([])}
               zoom={scale}
+              color={color}
             />
           </div>
         </div>

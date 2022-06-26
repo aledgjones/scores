@@ -193,6 +193,9 @@ export const Toolbox: FC<Props> = ({
         .color-picker :global(.margin) {
           margin-bottom: 12px;
         }
+        .toolbox :global(.pen.icon--selected) {
+          background-color: ${color} !important;
+        }
         .toolbox :global(.pen:after) {
           position: absolute;
           top: calc(50% - 2px);
@@ -206,6 +209,7 @@ export const Toolbox: FC<Props> = ({
         }
         .toolbox :global(.pen.icon--selected:after) {
           left: 34px;
+          border-left: 4px solid ${color};
         }
         .toolbox :global(.icon--selected) {
           background-color: var(--black) !important;

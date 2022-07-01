@@ -2,6 +2,7 @@ import {
   mdiAlertCircle,
   mdiCheckCircle,
   mdiClose,
+  mdiCloudCheckOutline,
   mdiDrag,
   mdiPaperclip,
 } from "@mdi/js";
@@ -15,7 +16,8 @@ import classNames from "classnames";
 
 interface Props {
   id: string;
-  file: File;
+  file?: File;
+  url?: string;
   name: string;
   state: FileState;
   onRemove: (key: string) => void;
@@ -25,6 +27,7 @@ interface Props {
 const FilesListItem: FC<Props> = ({
   id,
   file,
+  url,
   name,
   state,
   onRemove,
@@ -58,10 +61,22 @@ const FilesListItem: FC<Props> = ({
             onChange={(e) => onChange(id, e.target.value)}
             placeholder="Part Name"
           />
-          <div className="file">
-            <Icon path={mdiPaperclip} size={0.5} style={{ minWidth: 12 }} />
-            <p className="name">{file.name}</p>
-          </div>
+          {file && (
+            <div className="file">
+              <Icon path={mdiPaperclip} size={0.5} style={{ minWidth: 12 }} />
+              <p className="name">{file.name}</p>
+            </div>
+          )}
+          {url && (
+            <div className="file">
+              <Icon
+                path={mdiCloudCheckOutline}
+                size={0.5}
+                style={{ minWidth: 12 }}
+              />
+              <p className="name">cloud storage</p>
+            </div>
+          )}
         </div>
         {(() => {
           switch (state) {
@@ -97,10 +112,17 @@ const FilesListItem: FC<Props> = ({
       </div>
       <style jsx>{`
         .entry {
+          position: relative;
           display: flex;
           align-items: center;
           padding: 10px 15px;
           touch-action: none;
+          border-radius: 6px;
+          background-color: #fff;
+        }
+        .entry[aria-pressed] {
+          box-shadow: var(--shadow);
+          z-index: 1;
         }
         .meta {
           margin: 0 16px;

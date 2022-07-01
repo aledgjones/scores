@@ -5,7 +5,7 @@ import Button from "../ui/components/button";
 import { addToPlaylist, usePlaylists } from "../services/playlists";
 import { Score } from "../services/scores";
 import Icon from "@mdi/react";
-import { mdiChevronRight } from "@mdi/js";
+import { mdiPlus } from "@mdi/js";
 import Spinner from "../ui/components/spinner";
 import toast from "react-hot-toast";
 
@@ -46,7 +46,7 @@ const AddToPlaylist: FC<Props> = ({ score, onClose }) => {
           return (
             <li key={playlist.key} onClick={() => onAdd(playlist.key)}>
               <p className="grow">{playlist.name}</p>
-              {!isActive && <Icon path={mdiChevronRight} size={1} />}
+              {!isActive && <Icon path={mdiPlus} size={1} />}
               {isActive && <Spinner color="rgb(var(--primary))" />}
             </li>
           );

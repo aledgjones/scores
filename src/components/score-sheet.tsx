@@ -8,7 +8,11 @@ import {
 import Icon from "@mdi/react";
 import { FC } from "react";
 import { pinned, Score, togglePinnedScore } from "../services/scores";
-import { openAddToPlaylist, openDeleteScore } from "../services/ui";
+import {
+  openAddToPlaylist,
+  openDeleteScore,
+  openEditScore,
+} from "../services/ui";
 import BottomSheet from "../ui/components/bottom-sheet";
 import CardContent from "../ui/components/card-content";
 import Divider from "../ui/components/divider";
@@ -50,7 +54,12 @@ const ScoreSheet: FC<Props> = ({ libraryKey, score, onClose }) => {
           <Icon className="action" path={mdiPlaylistMusicOutline} size={1} />
           <p>Add To Playlist</p>
         </li>
-        <li>
+        <li
+          onClick={async () => {
+            openEditScore(libraryKey, score);
+            onClose();
+          }}
+        >
           <Icon className="action" path={mdiPencilOutline} size={1} />
           <p>Edit Score</p>
         </li>

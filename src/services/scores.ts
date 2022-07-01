@@ -178,6 +178,96 @@ export const createScore = async (
   ]);
 };
 
+export const editScore = async (
+  libraryKey: string,
+  scoreKey: string,
+  title: string,
+  artist: string,
+  genre: Genre,
+  files: FileEntry[],
+  discarded: FileEntry[],
+  onChange: (partKey: string, state: FileState) => void
+) => {
+  if (!libraryKey) {
+    throw new Error("Something went wrong");
+  }
+
+  if (!title) {
+    throw new Error("Please provide a title for your score");
+  }
+
+  if (!artist) {
+    throw new Error("Please provide an artist for your score");
+  }
+
+  if (!genre) {
+    throw new Error("Please provide a genre for your score");
+  }
+
+  if (files.length === 0) {
+    throw new Error("Please provide at least one part");
+  }
+
+  if (files.filter((file) => !file.name).length > 0) {
+    throw new Error("Please provide a name for each part");
+  }
+
+  const paths = discarded.map((part) => part.url || "");
+  await supabase.storage.from("parts").remove(paths);
+
+  const parts = await Promise.all(
+    files.map(async ({ key: partKey, name, file, url, size }) => {
+      if (file) {
+        onChange(partKey, FileState.Uploading);
+
+        const path = `${scoreKey}/${partKey}.pdf`;
+        const { error } = await supabase.storage
+          .from("parts")
+          .upload(path, file, {
+            cacheControl: `${3600 * 24 * 365}`, // cache for 1 year
+            upsert: true,
+          });
+
+        if (error) {
+          onChange(partKey, FileState.Error);
+          throw new Error(
+            "Something went wrong while uploading your scores, please try again."
+          );
+        } else {
+          onChange(partKey, FileState.Complete);
+          return {
+            key: partKey,
+            url: path,
+            size,
+            name,
+          };
+        }
+      } else {
+        onChange(partKey, FileState.Complete);
+        return {
+          key: partKey,
+          url,
+          size,
+          name,
+        };
+      }
+    })
+  );
+
+  await supabase
+    .from("scores")
+    .update([
+      {
+        key: scoreKey,
+        title,
+        artist,
+        genre,
+        parts,
+      },
+    ])
+    .eq("key", scoreKey);
+};
+
 export const togglePinnedScore = (libraryKey: string, scoreKey: string) => {
   const uid = getUserUid();
   if (uid) {

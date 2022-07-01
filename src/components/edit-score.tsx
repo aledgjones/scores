@@ -14,32 +14,46 @@ import { arrayMoveImmutable as arrayMove } from "array-move";
 import { pluralize } from "../ui/utils/pluralize";
 import classNames from "classnames";
 import { v4 as uuid } from "uuid";
-import { createScore, Genre } from "../services/scores";
+import { editScore, Genre, Score } from "../services/scores";
 import toast from "react-hot-toast";
 
 interface Props {
+  score: Score;
   library: string;
   onCancel: () => void;
   onComplete: () => void;
 }
 
-const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
-  const [title, setTitle] = useState("");
-  const [artist, setArtist] = useState("");
-  const [genre, setGenre] = useState(null);
-  const [files, setFiles] = useState<FileEntry[]>([]);
+const EditScore: FC<Props> = ({ score, library, onCancel, onComplete }) => {
+  const [title, setTitle] = useState(score.title);
+  const [artist, setArtist] = useState(score.artist);
+  const [genre, setGenre] = useState(score.genre);
+  const [files, setFiles] = useState<FileEntry[]>(
+    score.parts.map((part) => {
+      return {
+        key: part.key,
+        url: part.url,
+        name: part.name,
+        size: part.size,
+        state: FileState.None,
+      };
+    })
+  );
 
   const [working, setWorking] = useState(false);
+  const [removed, setRemoved] = useState<FileEntry[]>([]);
 
-  const onCreateCallback = async () => {
+  const onEditCallback = async () => {
     try {
       setWorking(true);
-      await createScore(
+      await editScore(
         library,
+        score.key,
         title,
         artist,
         genre,
         files,
+        removed,
         (partKey: string, state: FileState) => {
           setFiles((s) => {
             return s.map((entry) => {
@@ -53,6 +67,7 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
       );
       onComplete();
     } catch (err) {
+      console.log(err);
       toast.error(err.message);
       setWorking(false);
     }
@@ -96,9 +111,17 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
   };
 
   const onRemove = (key: string) => {
-    setFiles((items) => {
-      return items.filter((item) => item.key !== key);
-    });
+    const item = files.find((file) => file.key === key);
+    if (item) {
+      if (item.url) {
+        setRemoved((items) => {
+          return [...items, item];
+        });
+      }
+      setFiles((items) => {
+        return items.filter((item) => item.key !== key);
+      });
+    }
   };
 
   const onChange = (key: string, value: string) => {
@@ -116,7 +139,7 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
     <>
       <DropFile accept={["application/pdf"]} onDrop={addFiles}>
         <CardContent>
-          <h2 className="title">New Score</h2>
+          <h2 className="title">Edit Score</h2>
           <Input
             label="Title"
             type="text"
@@ -174,7 +197,7 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
             <Button disabled={working} onClick={onCancel}>
               Cancel
             </Button>
-            <Button disabled={working} onClick={onCreateCallback} primary>
+            <Button disabled={working} onClick={onEditCallback} primary>
               Save
             </Button>
           </div>
@@ -215,4 +238,4 @@ const NewScore: FC<Props> = ({ library, onCancel, onComplete }) => {
   );
 };
 
-export default Modal(NewScore);
+export default Modal(EditScore);

@@ -9,13 +9,11 @@ import classNames from "classnames";
 import { FC } from "react";
 import { useInView } from "react-intersection-observer";
 import { PlaylistScore } from "../../services/scores";
-import Handle from "../handle";
 import IconButton from "../../ui/components/icon-button";
 import { openPlaylistScoreSheet } from "../../services/ui";
 import Tag from "../../ui/components/tag";
 import { Link, useParams } from "react-router-dom";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
 interface Props {
   listKey: string;
@@ -42,6 +40,8 @@ const PlaylistItem: FC<Props> = ({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: score.playlistKey });
 
+  console.log(transition);
+
   return (
     <>
       <div
@@ -50,17 +50,15 @@ const PlaylistItem: FC<Props> = ({
           "wrap--open": isToggled,
           "wrap--inline": inline,
         })}
+        style={{
+          transform: transform?.y ? `translateY(${transform.y}px)` : undefined,
+          transition: `${transition}, height .3s`,
+        }}
+        {...attributes}
       >
         {inView && (
           <div
             ref={setNodeRef}
-            style={{
-              transform: transform?.y
-                ? `translateY(${transform.y}px)`
-                : undefined,
-              transition,
-            }}
-            {...attributes}
             onClick={() => onToggle(toggleKey)}
             className="item"
           >
@@ -130,9 +128,14 @@ const PlaylistItem: FC<Props> = ({
       </div>
       <style jsx>{`
         .wrap {
+          position: relative;
           height: 56px;
           cursor: pointer;
-          transition: height 0.3s;
+          background-color: #fff;
+        }
+        .wrap[aria-pressed] {
+          box-shadow: var(--shadow);
+          z-index: 10;
         }
         .wrap--open {
           height: 124px;

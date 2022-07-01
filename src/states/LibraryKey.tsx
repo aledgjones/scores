@@ -1,13 +1,15 @@
 import { useState } from "react";
 import Fab from "../ui/components/fab";
 import { mdiPlus } from "@mdi/js";
-import { useLibraryScores, usePinned } from "../services/scores";
+import { Score, useLibraryScores, usePinned } from "../services/scores";
 import { useAllScores } from "../services/cache";
 import { useLibrary } from "../services/libraries";
 import { useParams } from "react-router-dom";
 import SearchBar from "../components/search-bar";
 import ScoresList from "../components/scores-list/scores-list";
 import NewScore from "../components/new-score";
+import EditScore from "../components/edit-score";
+import { closeEditScore, ui } from "../services/ui";
 
 export const LibraryKey = () => {
   const { libraryKey } = useParams();
@@ -18,6 +20,8 @@ export const LibraryKey = () => {
 
   const [newScore, setNewScore] = useState(false);
   const [toggled, setToggled] = useState<string>();
+
+  const editScore = ui.useState((s) => s.editScore);
 
   const onToggle = (key: string) => {
     setToggled((value) => {
@@ -65,6 +69,18 @@ export const LibraryKey = () => {
           mutateAllScores(); // triggers recaching
           mutateLibraryScores();
           setNewScore(false);
+        }}
+      />
+
+      <EditScore
+        library={editScore.libraryKey}
+        score={editScore.score}
+        open={editScore.open}
+        onCancel={closeEditScore}
+        onComplete={() => {
+          mutateAllScores(); // triggers recaching
+          mutateLibraryScores();
+          closeEditScore();
         }}
       />
 

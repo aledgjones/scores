@@ -25,6 +25,7 @@ export interface FileEntry {
   file?: File;
   url?: string;
   name: string;
+  size: number;
   state: FileState;
 }
 
@@ -67,12 +68,13 @@ const FilesList: FC<Props> = ({
           strategy={verticalListSortingStrategy}
         >
           <div className={classNames("files", { "files--working": working })}>
-            {files.map(({ key, file, name, state }, index) => {
+            {files.map(({ key, file, url, name, state }, index) => {
               return (
                 <FilesListItem
                   key={key}
                   id={key}
                   index={index}
+                  url={url}
                   file={file}
                   name={name}
                   state={state}

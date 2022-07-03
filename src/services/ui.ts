@@ -19,6 +19,7 @@ interface Shape {
   addLabel: { open: boolean; score?: PlaylistScore };
   editScore: { open: boolean; libraryKey?: string; score?: Score };
   deleteScore: { open: boolean; libraryKey?: string; score?: Score };
+  deleteLibrary: { open: boolean; library?: Library; scores?: Score[] };
   deletePlaylist: { open: boolean; playlist?: Playlist };
   playlistSheet: { open: boolean; playlistKey?: string; selection?: string };
   inviteToLibrary: { open: boolean; libraryKey?: string };
@@ -38,6 +39,7 @@ export const ui = new Store<Shape>({
   addToPlaylist: { open: false },
   addLabel: { open: false },
   editScore: { open: false },
+  deleteLibrary: { open: false },
   deleteScore: { open: false },
   deletePlaylist: { open: false },
   playlistSheet: { open: false },
@@ -159,6 +161,20 @@ export const openDeleteScore = (libraryKey: string, score: Score) => {
 export const closeDeleteScore = () => {
   ui.update((s) => {
     s.deleteScore.open = false;
+  });
+};
+
+export const openDeleteLibrary = (library: Library, scores: Score[]) => {
+  ui.update((s) => {
+    s.deleteLibrary.open = true;
+    s.deleteLibrary.library = library;
+    s.deleteLibrary.scores = scores;
+  });
+};
+
+export const closeDeleteLibrary = () => {
+  ui.update((s) => {
+    s.deleteLibrary.open = false;
   });
 };
 

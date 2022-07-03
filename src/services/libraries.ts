@@ -2,6 +2,7 @@ import localforage from "localforage";
 import useSWR from "swr";
 import { getUserEmail, getUserUid, useUid } from "./auth";
 import { DB_NAME, supabase } from "./db";
+import { deleteScore, Score } from "./scores";
 
 const lastLibraryStorage = localforage.createInstance({
   name: DB_NAME,
@@ -104,17 +105,22 @@ export const useLibraryMember = (libraryKey: string, uid: string) => {
 
 export const setLastLibrary = (key: string) => {
   const uid = getUserUid();
-  lastLibraryStorage.setItem(`last-library/${uid}`, key);
+  if (uid) {
+    lastLibraryStorage.setItem(uid, key);
+  }
 };
 
 export const getLastLibrary = async (libraries: Library[]) => {
   const uid = getUserUid();
-  const key = await lastLibraryStorage.getItem<string>(`last-library/${uid}`);
-  if (key && libraries.find((library) => library.key === key)) {
-    return key;
-  } else {
-    return libraries[0].key;
+
+  if (uid) {
+    const key = await lastLibraryStorage.getItem<string>(uid);
+    if (key && libraries.find((library) => library.key === key)) {
+      return key;
+    }
   }
+
+  return libraries[0].key;
 };
 
 export const addMemberToLibrary = (
@@ -327,4 +333,57 @@ export const updateLibraryUserPermissions = (
     .from("library_members")
     .update({ read, write })
     .match({ user: user.uid, library: libraryKey });
+};
+
+export const deleteLibrary = async (libraryKey: string, scores: Score[]) => {
+  const uid = getUserUid();
+
+  if (!uid || !libraryKey || !scores) {
+    throw new Error("Something went wrong");
+  }
+
+  console.log(libraryKey, scores);
+
+  await Promise.all(
+    scores.map((score) => {
+      return deleteScore(score);
+    })
+  );
+
+  {
+    const { error } = await supabase
+      .from("library_members")
+      .delete()
+      .eq("library", libraryKey);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  {
+    const { error } = await supabase
+      .from("library_invites")
+      .delete()
+      .eq("library", libraryKey);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  {
+    const { error } = await supabase
+      .from("libraries")
+      .delete()
+      .eq("key", libraryKey);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  await lastLibraryStorage.removeItem(uid);
+
+  return libraryKey;
 };

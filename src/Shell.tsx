@@ -2,6 +2,7 @@ import { Toaster } from "react-hot-toast";
 import { Outlet } from "react-router-dom";
 import AddLabel from "./components/add-label";
 import AddToPlaylist from "./components/add-to-playlist";
+import DeleteLibrary from "./components/delete-library";
 import DeletePlaylist from "./components/delete-playlist";
 import DeleteScore from "./components/delete-score";
 import InviteToLibrary from "./components/invite-to-library";
@@ -19,6 +20,7 @@ import { usePlaylists } from "./services/playlists";
 import {
   closeAddLabel,
   closeAddToPlaylist,
+  closeDeleteLibrary,
   closeDeletePlaylist,
   closeDeleteScore,
   closeInviteToLibrary,
@@ -48,6 +50,7 @@ export const Shell = () => {
     addLabel,
     addToPlaylist,
     deleteScore,
+    deleteLibrary,
     deletePlaylist,
     playlistSheet,
     inviteToLibrary,
@@ -124,6 +127,13 @@ export const Shell = () => {
         libraryKey={deleteScore.libraryKey}
         score={deleteScore.score}
         onClose={closeDeleteScore}
+      />
+
+      <DeleteLibrary
+        open={deleteLibrary.open}
+        library={deleteLibrary.library}
+        scores={deleteLibrary.scores}
+        onClose={closeDeleteLibrary}
       />
 
       <DeletePlaylist

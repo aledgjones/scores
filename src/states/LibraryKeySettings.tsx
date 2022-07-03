@@ -1,6 +1,7 @@
 import {
   mdiArrowLeft,
   mdiClose,
+  mdiDeleteOutline,
   mdiDotsVertical,
   mdiOpenInNew,
   mdiPencilOutline,
@@ -17,6 +18,7 @@ import {
 } from "../services/libraries";
 import { useLibraryScores } from "../services/scores";
 import {
+  openDeleteLibrary,
   openInviteToLirary,
   openManageLibraryMember,
   openNewLibrary,
@@ -30,8 +32,8 @@ import Tooltip from "../ui/components/tooltip";
 import classNames from "classnames";
 import Button from "../ui/components/button";
 import { noop } from "../ui/utils/noop";
-import Switch from "../ui/components/switch";
-import fileSize from "file-size";
+import pretty from "pretty-bytes";
+import Divider from "../ui/components/divider";
 
 export const LibraryKeySettings = () => {
   const navigate = useNavigate();
@@ -60,7 +62,7 @@ export const LibraryKeySettings = () => {
     return out;
   }, 0);
 
-  const max = 60 * 1024 * 1024;
+  const max = 60 * 1000 * 1000;
   const percent = (usage / max) * 100;
 
   return (
@@ -131,10 +133,7 @@ export const LibraryKeySettings = () => {
               </div>
               <div className="meter-text">
                 <p className="percent">{percent.toFixed(0)}% used</p>
-                <p>
-                  {fileSize(usage).human("jedec")} of{" "}
-                  {fileSize(max, { fixed: 0 }).human("jedec")} used
-                </p>
+                <p>{`${pretty(usage)} of ${pretty(max)} used`}</p>
               </div>
             </div>
           </section>
@@ -142,7 +141,7 @@ export const LibraryKeySettings = () => {
         <section className="section">
           <Subheader>Members</Subheader>
           {members.map((user) => {
-            const isUserOwner = library.owner.uid === user.uid;
+            const isUserOwner = library?.owner?.uid === user.uid;
             const initial = user.name.slice(0, 1).toLocaleUpperCase();
             const color = stringToColor(user.email);
             return (
@@ -213,6 +212,27 @@ export const LibraryKeySettings = () => {
               </div>
             </div>
           </section>
+        )}
+        {isOwner && (
+          <>
+            <Divider />
+            <section className="section">
+              <div className="actions">
+                <Button
+                  compact
+                  onClick={() => openDeleteLibrary(library, scores)}
+                >
+                  <Icon
+                    path={mdiDeleteOutline}
+                    style={{ marginRight: 6 }}
+                    size={1}
+                  />
+                  Delete Library
+                </Button>
+                <p></p>
+              </div>
+            </section>
+          </>
         )}
       </div>
       <style jsx>{`
@@ -323,6 +343,11 @@ export const LibraryKeySettings = () => {
         .small {
           font-size: 0.8em;
           opacity: 0.6;
+        }
+        .actions {
+          display: flex;
+          justify-content: center;
+          padding: 20px 0;
         }
       `}</style>
     </>

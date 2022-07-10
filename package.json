@@ -38,7 +38,7 @@
     "@supabase/supabase-js": "^1.35.4",
     "app-reset": "^1.0.2",
     "array-move": "^4.0.0",
-    "big.js": "^6.2.0",
+    "big.js": "^6.2.1",
     "classnames": "^2.3.1",
     "color": "^4.2.3",
     "fuzzysort": "^2.0.1",

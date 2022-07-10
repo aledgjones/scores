@@ -139,7 +139,7 @@ export const createScore = async (
       const path = `${scoreKey}/${partKey}.pdf`;
       const { error } = await supabase.storage
         .from("parts")
-        .upload(path, file, {
+        .upload(path, file!, {
           cacheControl: `${3600 * 24 * 365}`, // cache for 1 year
           upsert: true,
         });

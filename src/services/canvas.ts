@@ -7,11 +7,24 @@ export type XCoord = number;
 export type YCoord = number;
 export type Width = number;
 export enum Color {
-  black = "black",
-  red = "red",
-  green = "green",
-  blue = "blue",
+  black = "#000000",
+  bluegrey = "#607d8b",
+  blue = "#1e96f2",
+  purple = "#673ab7",
+  red = "#f44336",
+  orange = "#ff9800",
+  green = "#4caf50",
+  brown = "#795648",
 }
+export const colors = [
+  { label: "Black", color: Color.black },
+  { label: "Blue-grey", color: Color.bluegrey },
+  { label: "Brown", color: Color.brown },
+  { label: "Red", color: Color.red },
+  { label: "Blue", color: Color.blue },
+  { label: "Green", color: Color.green },
+  { label: "Orange", color: Color.orange },
+];
 
 export type DrawPoint = [XCoord, YCoord];
 export type DrawInstruction = [Tool, Color, Width, DrawPoint[]];

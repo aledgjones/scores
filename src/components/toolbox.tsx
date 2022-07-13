@@ -12,7 +12,7 @@ import {
 import Icon from "@mdi/react";
 import classNames from "classnames";
 import { FC, useState } from "react";
-import { Color } from "../services/canvas";
+import { Color, colors } from "../services/canvas";
 import { Tool } from "../services/ui";
 import IconButton from "../ui/components/icon-button";
 
@@ -57,45 +57,19 @@ export const Toolbox: FC<Props> = ({
     <>
       {colorOpen && (
         <div className="color-picker">
-          <IconButton
-            onClick={() => {
-              onChangeColor(Color.black);
-              setColorOpen(false);
-            }}
-            className="margin"
-            ariaLabel="Black"
-          >
-            <Icon path={mdiCircle} size={1} color={Color.black} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              onChangeColor(Color.red);
-              setColorOpen(false);
-            }}
-            className="margin"
-            ariaLabel="Black"
-          >
-            <Icon path={mdiCircle} size={1} color={Color.red} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              onChangeColor(Color.green);
-              setColorOpen(false);
-            }}
-            className="margin"
-            ariaLabel="Black"
-          >
-            <Icon path={mdiCircle} size={1} color={Color.green} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              onChangeColor(Color.blue);
-              setColorOpen(false);
-            }}
-            ariaLabel="Black"
-          >
-            <Icon path={mdiCircle} size={1} color={Color.blue} />
-          </IconButton>
+          {colors.map(({ label, color }) => {
+            return (
+              <IconButton
+                onClick={() => {
+                  onChangeColor(color);
+                  setColorOpen(false);
+                }}
+                ariaLabel={label}
+              >
+                <Icon path={mdiCircle} size={1} color={color} />
+              </IconButton>
+            );
+          })}
         </div>
       )}
       <div className="toolbox">
@@ -167,8 +141,7 @@ export const Toolbox: FC<Props> = ({
         </IconButton>
       </div>
       <style jsx>{`
-        .toolbox,
-        .color-picker {
+        .toolbox {
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -186,11 +159,23 @@ export const Toolbox: FC<Props> = ({
           pointer-events: all;
         }
         .color-picker {
+          position: fixed;
+          top: 50%;
           left: 76px;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          grid-template-rows: repeat(3, 1fr);
+          grid-gap: 8px;
+          transform: translateY(calc(-100% - 48px));
+          padding: 8px;
+          box-shadow: var(--shadow);
+          border-radius: 4px;
+          z-index: 2000;
+          background-color: #fff;
+          pointer-events: all;
           z-index: 2001;
         }
-        .toolbox :global(.margin),
-        .color-picker :global(.margin) {
+        .toolbox :global(.margin) {
           margin-bottom: 12px;
         }
         .toolbox :global(.pen.icon--selected) {

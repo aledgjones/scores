@@ -150,10 +150,10 @@ export const Toolbox: FC<Props> = ({
           top: 50%;
           left: 20px;
           transform: translateY(-50%);
-          padding: 8px 0;
-          width: 48px;
+          padding: 12px 0;
+          width: 56px;
           box-shadow: var(--shadow);
-          border-radius: 24px;
+          border-radius: 28px;
           z-index: 2000;
           background-color: #fff;
           pointer-events: all;
@@ -161,7 +161,7 @@ export const Toolbox: FC<Props> = ({
         .color-picker {
           position: fixed;
           top: 50%;
-          left: 76px;
+          left: 84px;
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           grid-template-rows: repeat(3, 1fr);
@@ -205,7 +205,7 @@ export const Toolbox: FC<Props> = ({
           color: var(--on-primary);
         }
         .spacer {
-          width: 24px;
+          width: 36px;
           height: 1px;
           background-color: rgb(200, 200, 200);
           margin-top: 8px;

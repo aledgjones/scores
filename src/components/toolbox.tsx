@@ -150,7 +150,7 @@ export const Toolbox: FC<Props> = ({
           top: 50%;
           left: 20px;
           transform: translateY(-50%);
-          padding: 12px 0;
+          padding: 14px 0;
           width: 56px;
           box-shadow: var(--shadow);
           border-radius: 28px;

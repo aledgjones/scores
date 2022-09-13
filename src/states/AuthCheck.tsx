@@ -11,12 +11,7 @@ export const AuthCheck = () => {
     if (uid) {
       navigate("/library");
     } else {
-      const ref = setTimeout(() => {
-        navigate("/login");
-      }, 1000);
-      return () => {
-        clearTimeout(ref);
-      };
+      navigate("/login");
     }
   }, [uid]);
 

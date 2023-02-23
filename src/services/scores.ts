@@ -50,7 +50,8 @@ export interface PlaylistScore extends Score {
   tag: string | null;
 }
 
-const getLibraryScores = async (key: string, libraryKey: string) => {
+const getLibraryScores = async (key: string) => {
+  const [resource, libraryKey] = key.split("/");
   const { data } = await supabase
     .from("library_scores")
     .select("score(key, title, artist, genre, parts)")
@@ -69,13 +70,15 @@ export const useLibraryScores = (libraryKey: string) => {
   const key = `library-scores/${libraryKey}`;
 
   const { data, mutate } = useSWR<Score[]>(() => {
-    return libraryKey ? [key, libraryKey] : null;
+    return libraryKey ? key : null;
   }, getLibraryScores);
 
   return { scores: data || [], mutate };
 };
 
-const getPlaylistScores = async (key: string, playlistKey: string) => {
+const getPlaylistScores = async (key: string) => {
+  const [resource, playlistKey] = key.split("/");
+
   const { data } = await supabase
     .from("playlist_scores")
     .select("key,score(key, title, artist, genre, parts),order,tag")
@@ -93,7 +96,7 @@ export const usePlaylistScores = (playlistKey: string) => {
   const key = `playlist-scores/${playlistKey}`;
 
   const { data, mutate } = useSWR<PlaylistScore[]>(() => {
-    return playlistKey ? [key, playlistKey] : null;
+    return playlistKey ? key : null;
   }, getPlaylistScores);
 
   return { scores: data || [], mutate };

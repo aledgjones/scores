@@ -3,7 +3,9 @@ import { getUserUid, useUid } from "./auth";
 import { supabase } from "./db";
 import { PlaylistScore } from "./scores";
 
-const getPlaylists = async (key: string, uid: string) => {
+const getPlaylists = async (key) => {
+  const [resource, uid] = key.split("/");
+
   const { data } = await supabase
     .from("playlist_members")
     .select("playlist(key,name,owner(uid,name,email)),read,write")
@@ -42,7 +44,7 @@ export const usePlaylists = () => {
   const key = `playlists/${uid}`;
 
   const { data, mutate } = useSWR<Playlist[]>(() => {
-    return uid ? [key, uid] : null;
+    return uid ? key : null;
   }, getPlaylists);
 
   return { playlists: data || [], mutate };

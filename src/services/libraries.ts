@@ -9,7 +9,9 @@ const lastLibraryStorage = localforage.createInstance({
   storeName: "last-library-v1",
 });
 
-const getLibraries = async (key: string, uid: string) => {
+const getLibraries = async (key: string) => {
+  const [resource, uid] = key.split("/");
+
   const { data } = await supabase
     .from("library_members")
     .select("library(key,name,owner(uid,name,email)),read,write")
@@ -30,7 +32,9 @@ const getLibraries = async (key: string, uid: string) => {
   return libraries;
 };
 
-const getLibraryMembers = async (key: string, libraryKey: string) => {
+const getLibraryMembers = async (key: string) => {
+  const [resource, libraryKey] = key.split("/");
+
   const { data } = await supabase
     .from("library_members")
     .select("user(uid, name, email),read,write")
@@ -76,7 +80,7 @@ export const useLibraries = () => {
   const key = `libraries/${uid}`;
 
   const { data, mutate } = useSWR<Library[]>(() => {
-    return uid ? [key, uid] : null;
+    return uid ? key : null;
   }, getLibraries);
 
   return { libraries: data || [], mutate };
@@ -88,9 +92,9 @@ export const useLibrary = (libraryKey: string) => {
 };
 
 export const useLibraryMembers = (libraryKey: string) => {
-  const key = `/library-members/${libraryKey}`;
+  const key = `library-members/${libraryKey}`;
   const { data, mutate } = useSWR<LibraryMember[]>(() => {
-    return libraryKey ? [key, libraryKey] : null;
+    return libraryKey ? key : null;
   }, getLibraryMembers);
 
   return { members: data || [], mutate };
@@ -189,7 +193,9 @@ export const sendInviteToLibrary = async (
   email: string
 ) => {
   const { data } = await getLibraryInviteEntry(libraryKey, email);
-  const members: LibraryMember[] = await getLibraryMembers(null, libraryKey);
+  const members: LibraryMember[] = await getLibraryMembers(
+    `library-members/${libraryKey}`
+  );
   const hasInvite = data !== null;
   const isMember = !!members.find((user) => user.email === email);
 
@@ -232,7 +238,8 @@ export const revokeLibraryAccess = async (libraryKey: string, uid: string) => {
   }
 };
 
-const getLibraryInvites = async (url: string, libraryKey: string) => {
+const getLibraryInvites = async (key: string) => {
+  const [resource, libraryKey] = key.split("/");
   const { data } = await supabase
     .from("library_invites")
     .select("email")
@@ -242,14 +249,16 @@ const getLibraryInvites = async (url: string, libraryKey: string) => {
 };
 
 export const useLibraryInvites = (libraryKey: string) => {
-  const key = `/library-invites/${libraryKey}`;
+  const key = `library-invites/${libraryKey}`;
   const { data, mutate } = useSWR<string[]>(() => {
-    return libraryKey ? [key, libraryKey] : null;
+    return libraryKey ? key : null;
   }, getLibraryInvites);
   return { invites: data || [], mutate };
 };
 
-const getUserLibraryInvites = async (url: string, email: string) => {
+const getUserLibraryInvites = async (key: string) => {
+  const [resource, email] = key.split("/");
+
   const { data } = await supabase
     .from("library_invites")
     .select("key,library(key,name,owner(name))")
@@ -273,9 +282,9 @@ interface Invite {
 
 export const useUserLibraryInvites = () => {
   const email = getUserEmail();
-  const key = `/user-library-invites/${email}`;
+  const key = `user-library-invites/${email}`;
   const { data, mutate } = useSWR<Invite[]>(() => {
-    return email ? [key, email] : null;
+    return email ? key : null;
   }, getUserLibraryInvites);
 
   const invites = data || [];

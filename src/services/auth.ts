@@ -8,19 +8,21 @@ export const getUserUid = (): Uid => {
   return supabase.auth.user()?.id || null;
 };
 
-const auth = new Store<string | null>(supabase.auth.user()?.id || null);
+const auth = new Store<{ id: Uid }>({ id: supabase.auth.user()?.id || null });
 
 export const useUidListener = () => {
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
       console.log(event, session?.user?.id || null);
-      auth.update(() => session?.user?.id || null);
+      auth.update(() => {
+        return { id: session?.user?.id || null };
+      });
     });
   }, []);
 };
 
 export const useUid = () => {
-  return auth.useState((s) => s);
+  return auth.useState((s) => s.id);
 };
 
 export const getUserEmail = () => {

@@ -62,7 +62,9 @@ export const cacheScore = async (score: Score, keys: string[]) => {
   }
 };
 
-const getLibraryScores = async (key: string, query: string) => {
+const getLibraryScores = async (key: string) => {
+  const [resource, uid, query] = key.split("/");
+
   const { data } = await supabase
     .from("library_scores")
     .select("score(key,title,artist,parts)")
@@ -81,10 +83,10 @@ export const useAllScores = () => {
   const query = libraries
     .map((library) => `library.eq.${library.key}`)
     .join(",");
-  const key = `all-scores/${uid}`;
+  const key = `all-scores/${uid}/${query}`;
 
   const { data, mutate } = useSWR<Score[]>(() => {
-    return uid && query ? [key, query] : null;
+    return uid && query ? key : null;
   }, getLibraryScores);
 
   return { scores: data || [], mutate };

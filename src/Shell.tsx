@@ -138,7 +138,6 @@ export const Shell = () => {
 
       <DeletePlaylist
         open={deletePlaylist.open}
-        playlistKey={deletePlaylist.playlistKey}
         playlist={deletePlaylist.playlist}
         onClose={closeDeletePlaylist}
       />

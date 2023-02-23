@@ -3,7 +3,8 @@
     "module": "ESNext",
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "include": ["src", "types.d.ts"]
 }

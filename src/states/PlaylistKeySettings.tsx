@@ -1,7 +1,6 @@
 import { mdiArrowLeft, mdiDeleteOutline, mdiPencilOutline } from "@mdi/js";
 import Icon from "@mdi/react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getUserUid } from "../services/auth";
 import { openDeletePlaylist, openNewPlaylist } from "../services/ui";
 import IconButton from "../ui/components/icon-button";
 import Subheader from "../ui/components/subheader";
@@ -11,13 +10,15 @@ import classNames from "classnames";
 import { usePlaylist } from "../services/playlists";
 import Button from "../ui/components/button";
 import Divider from "../ui/components/divider";
+import { useUserId } from "../services/auth";
 
 export const PlaylistKeySettings = () => {
   const navigate = useNavigate();
+  const uid = useUserId();
   const { playlistKey } = useParams();
   const playlist = usePlaylist(playlistKey);
   const top = useScrollPosition();
-  const isOwner = playlist?.owner.uid === getUserUid();
+  const isOwner = playlist?.owner.uid === uid;
 
   return (
     <>

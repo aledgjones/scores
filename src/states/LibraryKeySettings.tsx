@@ -9,7 +9,6 @@ import {
 import Icon from "@mdi/react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import { getUserUid } from "../services/auth";
 import {
   revokeLibraryInvite,
   useLibrary,
@@ -34,16 +33,18 @@ import Button from "../ui/components/button";
 import { noop } from "../ui/utils/noop";
 import pretty from "pretty-bytes";
 import Divider from "../ui/components/divider";
+import { useUserId } from "../services/auth";
 
 export const LibraryKeySettings = () => {
   const navigate = useNavigate();
+  const uid = useUserId();
   const { libraryKey } = useParams();
   const { scores } = useLibraryScores(libraryKey);
   const { members } = useLibraryMembers(libraryKey);
   const { invites, mutate } = useLibraryInvites(libraryKey);
   const library = useLibrary(libraryKey);
   const top = useScrollPosition();
-  const isOwner = library?.owner.uid === getUserUid();
+  const isOwner = library?.owner.uid === uid;
   const canManage = isOwner;
 
   const revokeInvite = async (email: string) => {

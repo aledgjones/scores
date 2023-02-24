@@ -28,7 +28,7 @@ export const renderPage = async (pdf: PDFDocumentProxy, pageNumber: number) => {
       height: screen.width,
     })
   );
-  const viewport = page.getViewport({ scale: scale * window.devicePixelRatio });
+  const viewport = page.getViewport({ scale });
   const canvas = getOffscreenCanvas(viewport.width, viewport.height);
   const ctx = canvas.getContext("2d", { alpha: false });
   const renderTask = page.render({

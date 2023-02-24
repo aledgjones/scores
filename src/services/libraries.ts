@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import useSWR from "swr";
-import { getUserEmail, getUserUid, useUid } from "./auth";
+import { getUserEmail, getUserId, UserId, useUserId } from "./auth";
 import { DB_NAME, supabase } from "./db";
 import { deleteScore, Score } from "./scores";
 
@@ -15,7 +15,8 @@ const getLibraries = async (key: string) => {
   const { data } = await supabase
     .from("library_members")
     .select("library(key,name,owner(uid,name,email)),read,write")
-    .eq("user", uid);
+    .eq("user", uid)
+    .returns<any>();
 
   const libraries = data
     .map((item) => {
@@ -38,7 +39,8 @@ const getLibraryMembers = async (key: string) => {
   const { data } = await supabase
     .from("library_members")
     .select("user(uid, name, email),read,write")
-    .eq("library", libraryKey);
+    .eq("library", libraryKey)
+    .returns<any>();
 
   const members = data
     .map((item) => {
@@ -76,12 +78,10 @@ export interface LibraryMember {
 }
 
 export const useLibraries = () => {
-  const uid = useUid();
-  const key = `libraries/${uid}`;
+  const uid = useUserId();
 
-  const { data, mutate } = useSWR<Library[]>(() => {
-    return uid ? key : null;
-  }, getLibraries);
+  const key = uid ? `libraries/${uid}` : null;
+  const { data, mutate } = useSWR<Library[]>(key, getLibraries);
 
   return { libraries: data || [], mutate };
 };
@@ -92,10 +92,8 @@ export const useLibrary = (libraryKey: string) => {
 };
 
 export const useLibraryMembers = (libraryKey: string) => {
-  const key = `library-members/${libraryKey}`;
-  const { data, mutate } = useSWR<LibraryMember[]>(() => {
-    return libraryKey ? key : null;
-  }, getLibraryMembers);
+  const key = libraryKey ? `library-members/${libraryKey}` : null;
+  const { data, mutate } = useSWR<LibraryMember[]>(key, getLibraryMembers);
 
   return { members: data || [], mutate };
 };
@@ -108,14 +106,15 @@ export const useLibraryMember = (libraryKey: string, uid: string) => {
 };
 
 export const setLastLibrary = (key: string) => {
-  const uid = getUserUid();
+  const uid = getUserId();
+
   if (uid) {
     lastLibraryStorage.setItem(uid, key);
   }
 };
 
 export const getLastLibrary = async (libraries: Library[]) => {
-  const uid = getUserUid();
+  const uid = getUserId();
 
   if (uid) {
     const key = await lastLibraryStorage.getItem<string>(uid);
@@ -138,9 +137,7 @@ export const addMemberToLibrary = (
     .insert([{ user: uid, library: libraryKey, read, write }]);
 };
 
-export const createLibrary = async (name: string) => {
-  const uid = getUserUid();
-
+export const createLibrary = async (uid: UserId, name: string) => {
   if (!uid) {
     throw new Error("Something went wrong");
   }
@@ -150,7 +147,9 @@ export const createLibrary = async (name: string) => {
 
   const { data } = await supabase
     .from("libraries")
-    .insert([{ name, owner: uid }]);
+    .insert([{ name, owner: uid }])
+    .select()
+    .returns<Library[]>();
 
   const libraryKey = data[0].key;
   await addMemberToLibrary(uid, libraryKey, true, true);
@@ -159,7 +158,7 @@ export const createLibrary = async (name: string) => {
 };
 
 export const updateLibrary = async (libraryKey: string, name: string) => {
-  const uid = getUserUid();
+  const uid = getUserId();
 
   if (!uid || !libraryKey) {
     throw new Error("Something went wrong");
@@ -249,10 +248,9 @@ const getLibraryInvites = async (key: string) => {
 };
 
 export const useLibraryInvites = (libraryKey: string) => {
-  const key = `library-invites/${libraryKey}`;
-  const { data, mutate } = useSWR<string[]>(() => {
-    return libraryKey ? key : null;
-  }, getLibraryInvites);
+  const key = libraryKey ? `library-invites/${libraryKey}` : null;
+  const { data, mutate } = useSWR<string[]>(key, getLibraryInvites);
+
   return { invites: data || [], mutate };
 };
 
@@ -262,7 +260,9 @@ const getUserLibraryInvites = async (key: string) => {
   const { data } = await supabase
     .from("library_invites")
     .select("key,library(key,name,owner(name))")
-    .match({ email });
+    .match({ email })
+    .returns<any>();
+
   return data.map((item) => {
     return {
       key: item.key,
@@ -293,7 +293,7 @@ export const useUserLibraryInvites = () => {
 };
 
 export const acceptLibraryInvite = async (libraryKey: string) => {
-  const uid = getUserUid();
+  const uid = getUserId();
   const email = getUserEmail();
 
   // check for the invite they are trying to accept
@@ -345,13 +345,11 @@ export const updateLibraryUserPermissions = (
 };
 
 export const deleteLibrary = async (libraryKey: string, scores: Score[]) => {
-  const uid = getUserUid();
+  const uid = getUserId();
 
   if (!uid || !libraryKey || !scores) {
     throw new Error("Something went wrong");
   }
-
-  console.log(libraryKey, scores);
 
   await Promise.all(
     scores.map((score) => {

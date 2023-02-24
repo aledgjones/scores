@@ -4,15 +4,60 @@ import useSWR from "swr";
 import { FileEntry, FileState } from "../components/files-list/files-list";
 import { DB_NAME, supabase } from "./db";
 import { v4 as uuid } from "uuid";
-import { Store } from "pullstate";
-import { getUserUid } from "./auth";
+import { getUserId, useUserId } from "./auth";
 import { cache } from "./cache";
+import { create } from "zustand";
 
-interface Pinned {
-  [key: string]: boolean;
-}
+type Pinned = { [key: string]: boolean };
+export type StoreShape = {
+  pinned: { [key: string]: boolean };
+  toggle: (libraryKey: string, key: string) => void;
+  reset: (libraryKey: string) => void;
+};
 
-export const pinned = new Store<Pinned>({});
+export const usePinnedState = create<StoreShape>()((set) => {
+  return {
+    pinned: {},
+    toggle: (libraryKey: string, key: string) => {
+      const uid = getUserId();
+
+      if (!uid || !libraryKey || !key) {
+        return;
+      }
+
+      set((s) => {
+        const { [key]: current, ...others } = s.pinned;
+        if (current) {
+          pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, others);
+          return { pinned: others };
+        } else {
+          pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, {
+            ...others,
+            [key]: true,
+          });
+          return {
+            pinned: {
+              ...others,
+              [key]: true,
+            },
+          };
+        }
+      });
+    },
+    reset: async (libraryKey: string) => {
+      const uid = getUserId();
+
+      if (!uid || !libraryKey) {
+        return {};
+      }
+      const stored = await pinnedStorage.getItem<Pinned>(
+        `pinned/${uid}/${libraryKey}`
+      );
+      set({ pinned: stored || {} });
+    },
+  };
+});
+
 export const pinnedStorage = localforage.createInstance({
   name: DB_NAME,
   storeName: "pinned-v1",
@@ -55,7 +100,8 @@ const getLibraryScores = async (key: string) => {
   const { data } = await supabase
     .from("library_scores")
     .select("score(key, title, artist, genre, parts)")
-    .eq("library", libraryKey);
+    .eq("library", libraryKey)
+    .returns<any>();
 
   const scores = data
     .map((item) => item.score)
@@ -83,7 +129,8 @@ const getPlaylistScores = async (key: string) => {
     .from("playlist_scores")
     .select("key,score(key, title, artist, genre, parts),order,tag")
     .order("order", { ascending: true })
-    .eq("playlist", playlistKey);
+    .eq("playlist", playlistKey)
+    .returns<any>();
 
   const scores = data.map((item) => {
     return { ...item.score, playlistKey: item.key, tag: item.tag };
@@ -271,44 +318,6 @@ export const editScore = async (
     .eq("key", scoreKey);
 };
 
-export const togglePinnedScore = (libraryKey: string, scoreKey: string) => {
-  const uid = getUserUid();
-  if (uid) {
-    pinned.update((s) => {
-      if (s[scoreKey]) {
-        delete s[scoreKey];
-      } else {
-        s[scoreKey] = true;
-      }
-      pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, { ...s });
-    });
-  }
-};
-
-export const usePinned = (libraryKey: string, scores: Score[]) => {
-  const keys = pinned.useState((s) => s);
-
-  useEffect(() => {
-    (async () => {
-      const uid = getUserUid();
-      if (uid && libraryKey) {
-        const stored = await pinnedStorage.getItem<Pinned>(
-          `pinned/${uid}/${libraryKey}`
-        );
-        pinned.update(() => {
-          return stored || {};
-        });
-      }
-    })();
-  }, [libraryKey]);
-
-  return useMemo(() => {
-    return scores.filter((score) => {
-      return keys[score.key];
-    });
-  }, [keys, scores]);
-};
-
 export const deleteScore = async (score: Score) => {
   await supabase.from("library_scores").delete().eq("score", score.key);
   await supabase.from("playlist_scores").delete().eq("score", score.key);
@@ -320,4 +329,18 @@ export const deleteScore = async (score: Score) => {
       return cache.removeItem("/" + path);
     })
   );
+};
+
+export const usePinned = (libraryKey: string, scores: Score[]) => {
+  const { pinned, reset } = usePinnedState();
+
+  useEffect(() => {
+    reset(libraryKey);
+  }, [libraryKey, reset]);
+
+  return useMemo(() => {
+    return scores.filter((score) => {
+      return pinned[score.key];
+    });
+  }, [pinned, scores]);
 };

@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { getUserUid, useUid } from "./auth";
+import { UserId, useUserId, getUserId } from "./auth";
 import { supabase } from "./db";
 import { PlaylistScore } from "./scores";
 
@@ -9,7 +9,8 @@ const getPlaylists = async (key) => {
   const { data } = await supabase
     .from("playlist_members")
     .select("playlist(key,name,owner(uid,name,email)),read,write")
-    .eq("user", uid);
+    .eq("user", uid)
+    .returns<any>();
 
   const playlists = data
     .map((item) => {
@@ -39,13 +40,10 @@ export interface Playlist {
 }
 
 export const usePlaylists = () => {
-  const uid = useUid();
+  const uid = useUserId();
 
-  const key = `playlists/${uid}`;
-
-  const { data, mutate } = useSWR<Playlist[]>(() => {
-    return uid ? key : null;
-  }, getPlaylists);
+  const key = uid ? `playlists/${uid}` : null;
+  const { data, mutate } = useSWR<Playlist[]>(key, getPlaylists);
 
   return { playlists: data || [], mutate };
 };
@@ -55,9 +53,7 @@ export const usePlaylist = (key: string) => {
   return playlists.find((playlist) => playlist.key === key) ?? null;
 };
 
-export const createPlaylist = async (name: string) => {
-  const uid = getUserUid();
-
+export const createPlaylist = async (uid: UserId, name: string) => {
   if (!uid) {
     throw new Error("Something went wrong");
   }
@@ -67,7 +63,8 @@ export const createPlaylist = async (name: string) => {
 
   const { data } = await supabase
     .from("playlists")
-    .insert([{ name, owner: uid }]);
+    .insert([{ name, owner: uid }])
+    .select();
 
   const key = data[0].key;
 
@@ -79,7 +76,7 @@ export const createPlaylist = async (name: string) => {
 };
 
 export const updatePlaylist = async (playlistKey: string, name: string) => {
-  const uid = getUserUid();
+  const uid = getUserId();
 
   if (!uid || !playlistKey) {
     throw new Error("Something went wrong");
@@ -101,7 +98,7 @@ export const updatePlaylist = async (playlistKey: string, name: string) => {
 };
 
 export const deletePlaylist = async (playlistKey: string) => {
-  const uid = getUserUid();
+  const uid = getUserId();
 
   if (!uid || !playlistKey) {
     throw new Error("Something went wrong");
@@ -193,6 +190,7 @@ export const removeFromPlaylist = async (scoreKey: string) => {
     .from("playlist_scores")
     .delete()
     .eq("key", scoreKey);
+
   if (error) {
     throw new Error(error.message);
   }

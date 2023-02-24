@@ -40,8 +40,6 @@ const PlaylistItem: FC<Props> = ({
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: score.playlistKey });
 
-  console.log(transition);
-
   return (
     <>
       <div

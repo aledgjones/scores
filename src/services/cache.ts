@@ -4,10 +4,10 @@ import { Part, Score } from "./scores";
 import { useLibraries } from "./libraries";
 import useSWR from "swr";
 import { useEffect } from "react";
-import { Store } from "pullstate";
-import { useUid } from "./auth";
 import { getPdf, renderPage } from "./pdf";
 import toast from "react-hot-toast";
+import { create } from "zustand";
+import { useUserId } from "./auth";
 
 export enum Cache {
   Success = 1,
@@ -15,7 +15,25 @@ export enum Cache {
   Working,
 }
 
-export const cached = new Store<{ [key: string]: Cache }>({});
+type CacheSetter = (key: string, state: Cache) => void;
+export type StoreShape = {
+  cache: { [key: string]: Cache };
+  setCacheState: CacheSetter;
+};
+
+export const useCacheState = create<StoreShape>()((set) => {
+  return {
+    cache: {},
+    setCacheState: (key: string, state: Cache) => {
+      set((s) => {
+        return {
+          cache: { ...s.cache, [key]: state },
+        };
+      });
+    },
+  };
+});
+
 export const cache = localforage.createInstance({
   name: DB_NAME,
   storeName: "score-cache-v1",
@@ -39,11 +57,13 @@ const cachePart = async (part: Part) => {
   }
 };
 
-export const cacheScore = async (score: Score, keys: string[]) => {
+export const cacheScore = async (
+  score: Score,
+  keys: string[],
+  setCacheState: CacheSetter
+) => {
   try {
-    cached.update((s) => {
-      s[score.key] = Cache.Working;
-    });
+    setCacheState(score.key, Cache.Working);
     await Promise.all(
       score.parts.map(async (part) => {
         if (!keys.includes("/" + part.url)) {
@@ -51,14 +71,10 @@ export const cacheScore = async (score: Score, keys: string[]) => {
         }
       })
     );
-    cached.update((s) => {
-      s[score.key] = Cache.Success;
-    });
+    setCacheState(score.key, Cache.Success);
   } catch (e) {
     console.log(e);
-    cached.update((s) => {
-      s[score.key] = Cache.Failed;
-    });
+    setCacheState(score.key, Cache.Failed);
   }
 };
 
@@ -68,7 +84,8 @@ const getLibraryScores = async (key: string) => {
   const { data } = await supabase
     .from("library_scores")
     .select("score(key,title,artist,parts)")
-    .or(query);
+    .or(query)
+    .returns<any>();
 
   const scores = data.map((item) => item.score);
 
@@ -76,24 +93,24 @@ const getLibraryScores = async (key: string) => {
 };
 
 export const useAllScores = () => {
-  const uid = useUid();
+  const uid = useUserId();
 
   const { libraries } = useLibraries();
 
   const query = libraries
     .map((library) => `library.eq.${library.key}`)
     .join(",");
-  const key = `all-scores/${uid}/${query}`;
 
-  const { data, mutate } = useSWR<Score[]>(() => {
-    return uid && query ? key : null;
-  }, getLibraryScores);
+  const key = uid && query ? `all-scores/${uid}/${query}` : null;
+  const { data, mutate } = useSWR<Score[]>(key, getLibraryScores);
 
   return { scores: data || [], mutate };
 };
 
 export const useCache = () => {
   const { scores } = useAllScores();
+  const { setCacheState } = useCacheState();
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -103,7 +120,7 @@ export const useCache = () => {
         toast.loading(`Processing score ${i + 1} of ${scores.length}`, {
           id: "process",
         });
-        await cacheScore(score, keys);
+        await cacheScore(score, keys, setCacheState);
         if (cancelled) {
           break;
         }

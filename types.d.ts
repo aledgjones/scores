@@ -1,9 +1,7 @@
 import "react";
 
-declare module "*.png" {
-  const value: any;
-  export = value;
-}
+declare module "*.module.css";
+declare module "*.png";
 
 declare module "react" {
   interface StyleHTMLAttributes<T> extends React.HTMLAttributes<T> {

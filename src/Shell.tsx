@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import AddLabel from "./components/add-label";
 import AddToPlaylist from "./components/add-to-playlist";
 import DeleteLibrary from "./components/delete-library";
@@ -13,7 +14,7 @@ import NewPlaylist from "./components/new-playlist";
 import PlaylistDrawer from "./components/playlist-drawer";
 import PlaylistScoreSheet from "./components/playlist-score-sheet";
 import ScoreSheet from "./components/score-sheet";
-import { useUidListener } from "./services/auth";
+import { useAuth, useAuthListener } from "./services/auth";
 import { useCache } from "./services/cache";
 import { useLibraries } from "./services/libraries";
 import { usePlaylists } from "./services/playlists";
@@ -36,11 +37,21 @@ import {
 import { useWakeLock } from "./ui/utils/wake-lock";
 
 export const Shell = () => {
+  const navigate = useNavigate();
+
   useWakeLock();
-  useUidListener();
+  useAuthListener();
   useLibraries();
   usePlaylists();
   useCache();
+
+  const { auth } = useAuth();
+
+  useEffect(() => {
+    if (auth === undefined) {
+      navigate("/");
+    }
+  }, [auth]);
 
   const {
     newLibrary,

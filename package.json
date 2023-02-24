@@ -36,7 +36,7 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@mdi/js": "^7.1.96",
     "@mdi/react": "^1.6.1",
-    "@supabase/supabase-js": "^1.35.6",
+    "@supabase/supabase-js": "^2.8.0",
     "app-reset": "^1.0.2",
     "array-move": "^4.0.0",
     "big.js": "^6.2.1",
@@ -53,8 +53,10 @@
     "react-hotkeys-hook": "^4.3.7",
     "react-intersection-observer": "^9.4.3",
     "react-router-dom": "^6.8.1",
+    "react-use": "^17.4.0",
     "styled-jsx": "^5.1.2",
     "swr": "^2.0.3",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "zustand": "^4.3.3"
   }
 }

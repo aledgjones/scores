@@ -1,19 +1,24 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUid } from "../services/auth";
+import { useResumeSession } from "../services/auth";
 import Spinner from "../ui/components/spinner";
 
 export const AuthCheck = () => {
   const navigate = useNavigate();
-  const uid = useUid();
+  const auth = useResumeSession();
 
   useEffect(() => {
-    if (uid) {
-      navigate("/library");
-    } else {
-      navigate("/login");
+    // loading
+    if (auth === undefined) {
+      return;
     }
-  }, [uid]);
+
+    if (auth === null) {
+      navigate("/login");
+    } else {
+      navigate("/library");
+    }
+  }, [auth]);
 
   return (
     <>

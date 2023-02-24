@@ -7,7 +7,7 @@ import {
 } from "@mdi/js";
 import Icon from "@mdi/react";
 import { FC } from "react";
-import { pinned, Score, togglePinnedScore } from "../services/scores";
+import { Score, usePinnedState } from "../services/scores";
 import {
   openAddToPlaylist,
   openDeleteScore,
@@ -25,7 +25,9 @@ interface Props {
 }
 
 const ScoreSheet: FC<Props> = ({ libraryKey, score, onClose }) => {
-  const isPinned = pinned.useState((s) => s[score.key], [score.key]);
+  const { pinned, toggle } = usePinnedState();
+
+  const isPinned = pinned[score.key];
 
   return (
     <>
@@ -40,7 +42,7 @@ const ScoreSheet: FC<Props> = ({ libraryKey, score, onClose }) => {
       </div>
       <Divider />
       <ul>
-        <li onClick={() => togglePinnedScore(libraryKey, score.key)}>
+        <li onClick={() => toggle(libraryKey, score.key)}>
           <Icon className="action" path={mdiStarOutline} size={1} />
           <p className="grow">Pinned</p>
           <Switch value={isPinned} />

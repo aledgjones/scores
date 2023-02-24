@@ -1,7 +1,7 @@
-import { mdiLightningBoltCircle } from "@mdi/js";
+import { mdiAlertCircle, mdiLightningBoltCircle } from "@mdi/js";
 import Icon from "@mdi/react";
 import { FC } from "react";
-import { Cache, cached } from "../services/cache";
+import { Cache, useCacheState } from "../services/cache";
 import Spinner from "../ui/components/spinner";
 
 interface Props {
@@ -9,14 +9,16 @@ interface Props {
 }
 
 const OfflineIndicator: FC<Props> = ({ scoreKey }) => {
-  const state = cached.useState((s) => s[scoreKey], [scoreKey]);
+  const { cache } = useCacheState();
+  const state = cache[scoreKey] || Cache.Working;
+
   return (
     <>
       {(!state || state === Cache.Working) && (
         <Spinner size={24} color="rgb(235,235,235)" />
       )}
       {state === Cache.Failed && (
-        <Icon path={mdiLightningBoltCircle} size={1} color="rgb(235,235,235)" />
+        <Icon path={mdiAlertCircle} size={1} color="tomato" />
       )}
       {state === Cache.Success && (
         <Icon

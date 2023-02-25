@@ -1,5 +1,6 @@
 import localforage from "localforage";
-import { getUserId, UserId } from "./auth";
+import { getUserId } from "./auth";
+import { getStoreName, StoreKeys } from "./cleanup";
 import { DB_NAME } from "./db";
 import { Tool } from "./ui";
 
@@ -32,7 +33,7 @@ export type DrawInstructions = DrawInstruction[];
 
 export const annotations = localforage.createInstance({
   name: DB_NAME,
-  storeName: "annotations-v1",
+  storeName: getStoreName(StoreKeys.Annotations),
 });
 
 export const drawLine = (

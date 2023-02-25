@@ -8,12 +8,18 @@ import { getPdf, renderPage } from "./pdf";
 import toast from "react-hot-toast";
 import { useUserId } from "./auth";
 import { Store } from "pullstate";
+import { getStoreName, StoreKeys } from "./cleanup";
 
 export enum Cache {
   Success = 1,
   Failed,
   Working,
 }
+
+export const cache = localforage.createInstance({
+  name: DB_NAME,
+  storeName: getStoreName(StoreKeys.ScoreCache),
+});
 
 type StoreShape = { [key: string]: Cache };
 export const cacheStore = new Store<StoreShape>({});
@@ -23,11 +29,6 @@ const setCacheState = (key: string, state: Cache) => {
     return { ...s, [key]: state };
   });
 };
-
-export const cache = localforage.createInstance({
-  name: DB_NAME,
-  storeName: "score-cache-v1",
-});
 
 const cachePart = async (part: Part) => {
   const { data: blob, error } = await supabase.storage

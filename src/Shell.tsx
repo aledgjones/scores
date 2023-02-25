@@ -16,6 +16,7 @@ import PlaylistScoreSheet from "./components/playlist-score-sheet";
 import ScoreSheet from "./components/score-sheet";
 import { useAuth, useAuthListener } from "./services/auth";
 import { useCacheWorker } from "./services/cache";
+import { useCleanup } from "./services/cleanup";
 import { useLibraries } from "./services/libraries";
 import { usePlaylists } from "./services/playlists";
 import {
@@ -44,6 +45,7 @@ export const Shell = () => {
   useLibraries();
   usePlaylists();
   useCacheWorker();
+  useCleanup();
 
   const auth = useAuth();
 

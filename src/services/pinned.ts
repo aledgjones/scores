@@ -4,10 +4,11 @@ import { Store } from "pullstate";
 import localforage from "localforage";
 import { DB_NAME } from "./db";
 import { useLibraryScores } from "./scores";
+import { getStoreName, StoreKeys } from "./cleanup";
 
 export const pinnedStorage = localforage.createInstance({
   name: DB_NAME,
-  storeName: "pinned-v1",
+  storeName: getStoreName(StoreKeys.Pinned),
 });
 
 type Pinned = { [key: string]: boolean };
@@ -45,10 +46,10 @@ const reset = async (libraryKey: string) => {
   if (!uid || !libraryKey) {
     return {};
   }
+
   const stored = await pinnedStorage.getItem<Pinned>(
     `pinned/${uid}/${libraryKey}`
   );
-  console.log(stored);
   pinnedStore.update((s) => stored || {});
 };
 

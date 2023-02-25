@@ -16,17 +16,14 @@ export const getPdf = async (file: Blob) => {
 };
 
 export const renderPage = async (pdf: PDFDocumentProxy, pageNumber: number) => {
+  const width: number = screen.width * devicePixelRatio;
+  const height: number = screen.height * devicePixelRatio;
+
   const page = await pdf.getPage(pageNumber);
   const naturalViewport = page.getViewport({ scale: 1.0 });
   const scale = Math.max(
-    fitAInsideB(naturalViewport, {
-      width: screen.width,
-      height: screen.height,
-    }),
-    fitAInsideB(naturalViewport, {
-      width: screen.height,
-      height: screen.width,
-    })
+    fitAInsideB(naturalViewport, { width, height }),
+    fitAInsideB(naturalViewport, { width, height })
   );
   const viewport = page.getViewport({ scale });
   const canvas = getOffscreenCanvas(viewport.width, viewport.height);

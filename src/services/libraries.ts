@@ -1,12 +1,13 @@
 import localforage from "localforage";
 import useSWR from "swr";
 import { getUserEmail, getUserId, UserId, useUserId } from "./auth";
+import { getStoreName, StoreKeys } from "./cleanup";
 import { DB_NAME, supabase } from "./db";
 import { deleteScore, Score } from "./scores";
 
 const lastLibraryStorage = localforage.createInstance({
   name: DB_NAME,
-  storeName: "last-library-v1",
+  storeName: getStoreName(StoreKeys.LastLibrary),
 });
 
 const getLibraries = async (key: string) => {

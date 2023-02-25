@@ -1,58 +1,8 @@
-import localforage from "localforage";
-import { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { FileEntry, FileState } from "../components/files-list/files-list";
-import { DB_NAME, supabase } from "./db";
+import { supabase } from "./db";
 import { v4 as uuid } from "uuid";
-import { getUserId } from "./auth";
 import { cache } from "./cache";
-import { Store } from "pullstate";
-
-type Pinned = { [key: string]: boolean };
-export type StoreShape = { [key: string]: boolean };
-export const pinnedStore = new Store<StoreShape>({});
-
-export const togglePinned = (libraryKey: string, key: string) => {
-  const uid = getUserId();
-
-  if (!uid || !libraryKey || !key) {
-    return;
-  }
-
-  pinnedStore.update((s) => {
-    const { [key]: current, ...others } = s;
-    if (current) {
-      pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, others);
-      return { ...others };
-    } else {
-      pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, {
-        ...others,
-        [key]: true,
-      });
-      return {
-        ...others,
-        [key]: true,
-      };
-    }
-  });
-};
-
-const reset = async (libraryKey: string) => {
-  const uid = getUserId();
-
-  if (!uid || !libraryKey) {
-    return {};
-  }
-  const stored = await pinnedStorage.getItem<Pinned>(
-    `pinned/${uid}/${libraryKey}`
-  );
-  pinnedStore.update((s) => stored || {});
-};
-
-export const pinnedStorage = localforage.createInstance({
-  name: DB_NAME,
-  storeName: "pinned-v1",
-});
 
 export enum Genre {
   Classical = "classical",
@@ -320,19 +270,4 @@ export const deleteScore = async (score: Score) => {
       return cache.removeItem("/" + path);
     })
   );
-};
-
-export const usePinned = (libraryKey: string) => {
-  const pinned = pinnedStore.useState((s) => s);
-  const { scores } = useLibraryScores(libraryKey);
-
-  useEffect(() => {
-    reset(libraryKey);
-  }, [libraryKey]);
-
-  return useMemo(() => {
-    return scores.filter((score) => {
-      return pinned[score.key];
-    });
-  }, [pinned, scores]);
 };

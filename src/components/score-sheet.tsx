@@ -7,7 +7,8 @@ import {
 } from "@mdi/js";
 import Icon from "@mdi/react";
 import { FC } from "react";
-import { Score, togglePinned, usePinned } from "../services/scores";
+import { togglePinned, useIsPinned } from "../services/pinned";
+import { Score } from "../services/scores";
 import {
   openAddToPlaylist,
   openDeleteScore,
@@ -25,9 +26,7 @@ interface Props {
 }
 
 const ScoreSheet: FC<Props> = ({ libraryKey, score, onClose }) => {
-  const pinned = usePinned(libraryKey);
-
-  const isPinned = pinned[score.key];
+  const isPinned = useIsPinned(score.key);
 
   return (
     <>

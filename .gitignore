@@ -1,6 +1,7 @@
 .parcel-cache
 .env
 package-lock.json
+yarn.lock
 
 dist
 node_modules

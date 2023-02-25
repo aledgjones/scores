@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Fab from "../ui/components/fab";
 import { mdiPlus } from "@mdi/js";
-import { useLibraryScores, usePinned } from "../services/scores";
+import { useLibraryScores } from "../services/scores";
 import { useAllScores } from "../services/cache";
 import { useLibrary } from "../services/libraries";
 import { useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import ScoresList from "../components/scores-list/scores-list";
 import NewScore from "../components/new-score";
 import EditScore from "../components/edit-score";
 import { closeEditScore, ui } from "../services/ui";
+import { usePinned, usePinnedWorker } from "../services/pinned";
 
 export const LibraryKey = () => {
   const { libraryKey } = useParams();
@@ -17,6 +18,8 @@ export const LibraryKey = () => {
   const { scores, mutate: mutateLibraryScores } = useLibraryScores(libraryKey);
   const library = useLibrary(libraryKey);
   const pinned = usePinned(libraryKey);
+
+  usePinnedWorker(libraryKey);
 
   const [newScore, setNewScore] = useState(false);
   const [toggled, setToggled] = useState<string>();

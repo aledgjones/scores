@@ -15,7 +15,7 @@ import PlaylistDrawer from "./components/playlist-drawer";
 import PlaylistScoreSheet from "./components/playlist-score-sheet";
 import ScoreSheet from "./components/score-sheet";
 import { useAuth, useAuthListener } from "./services/auth";
-import { useCache } from "./services/cache";
+import { useCacheWorker } from "./services/cache";
 import { useLibraries } from "./services/libraries";
 import { usePlaylists } from "./services/playlists";
 import {
@@ -43,9 +43,9 @@ export const Shell = () => {
   useAuthListener();
   useLibraries();
   usePlaylists();
-  useCache();
+  useCacheWorker();
 
-  const { auth } = useAuth();
+  const auth = useAuth();
 
   useEffect(() => {
     if (auth === undefined) {

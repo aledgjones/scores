@@ -1,7 +1,7 @@
 import { mdiAlertCircle, mdiLightningBoltCircle } from "@mdi/js";
 import Icon from "@mdi/react";
 import { FC } from "react";
-import { Cache, useCacheState } from "../services/cache";
+import { Cache, useCache } from "../services/cache";
 import Spinner from "../ui/components/spinner";
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 const OfflineIndicator: FC<Props> = ({ scoreKey }) => {
-  const { cache } = useCacheState();
+  const cache = useCache();
   const state = cache[scoreKey] || Cache.Working;
 
   return (

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Fab from "../ui/components/fab";
 import { mdiPlus } from "@mdi/js";
-import { Score, useLibraryScores, usePinned } from "../services/scores";
+import { useLibraryScores, usePinned } from "../services/scores";
 import { useAllScores } from "../services/cache";
 import { useLibrary } from "../services/libraries";
 import { useParams } from "react-router-dom";
@@ -16,7 +16,7 @@ export const LibraryKey = () => {
   const { mutate: mutateAllScores } = useAllScores();
   const { scores, mutate: mutateLibraryScores } = useLibraryScores(libraryKey);
   const library = useLibrary(libraryKey);
-  const pinned = usePinned(libraryKey, scores);
+  const pinned = usePinned(libraryKey);
 
   const [newScore, setNewScore] = useState(false);
   const [toggled, setToggled] = useState<string>();

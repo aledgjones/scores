@@ -53,7 +53,9 @@ export const usePlaylist = (key: string) => {
   return playlists.find((playlist) => playlist.key === key) ?? null;
 };
 
-export const createPlaylist = async (uid: UserId, name: string) => {
+export const createPlaylist = async (name: string) => {
+  const uid = getUserId();
+
   if (!uid) {
     throw new Error("Something went wrong");
   }

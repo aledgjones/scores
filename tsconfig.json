@@ -4,7 +4,8 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": ["src", "./types.d.ts"]
 }

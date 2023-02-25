@@ -12,6 +12,7 @@ import {
 import { FC } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getUserId } from "../services/auth";
 
 interface Props {
   library?: Library;
@@ -29,7 +30,8 @@ const NewLibrary: FC<Props> = ({ library, onClose }) => {
       if (library) {
         await updateLibrary(library.key, name);
       } else {
-        const key = await createLibrary(name);
+        const uid = getUserId();
+        const key = await createLibrary(uid, name);
         navigate(`/library/${key}`);
       }
       mutate();

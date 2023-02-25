@@ -4,59 +4,50 @@ import useSWR from "swr";
 import { FileEntry, FileState } from "../components/files-list/files-list";
 import { DB_NAME, supabase } from "./db";
 import { v4 as uuid } from "uuid";
-import { getUserId, useUserId } from "./auth";
+import { getUserId } from "./auth";
 import { cache } from "./cache";
-import { create } from "zustand";
+import { Store } from "pullstate";
 
 type Pinned = { [key: string]: boolean };
-export type StoreShape = {
-  pinned: { [key: string]: boolean };
-  toggle: (libraryKey: string, key: string) => void;
-  reset: (libraryKey: string) => void;
+export type StoreShape = { [key: string]: boolean };
+export const pinnedStore = new Store<StoreShape>({});
+
+export const togglePinned = (libraryKey: string, key: string) => {
+  const uid = getUserId();
+
+  if (!uid || !libraryKey || !key) {
+    return;
+  }
+
+  pinnedStore.update((s) => {
+    const { [key]: current, ...others } = s;
+    if (current) {
+      pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, others);
+      return { ...others };
+    } else {
+      pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, {
+        ...others,
+        [key]: true,
+      });
+      return {
+        ...others,
+        [key]: true,
+      };
+    }
+  });
 };
 
-export const usePinnedState = create<StoreShape>()((set) => {
-  return {
-    pinned: {},
-    toggle: (libraryKey: string, key: string) => {
-      const uid = getUserId();
+const reset = async (libraryKey: string) => {
+  const uid = getUserId();
 
-      if (!uid || !libraryKey || !key) {
-        return;
-      }
-
-      set((s) => {
-        const { [key]: current, ...others } = s.pinned;
-        if (current) {
-          pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, others);
-          return { pinned: others };
-        } else {
-          pinnedStorage.setItem(`pinned/${uid}/${libraryKey}`, {
-            ...others,
-            [key]: true,
-          });
-          return {
-            pinned: {
-              ...others,
-              [key]: true,
-            },
-          };
-        }
-      });
-    },
-    reset: async (libraryKey: string) => {
-      const uid = getUserId();
-
-      if (!uid || !libraryKey) {
-        return {};
-      }
-      const stored = await pinnedStorage.getItem<Pinned>(
-        `pinned/${uid}/${libraryKey}`
-      );
-      set({ pinned: stored || {} });
-    },
-  };
-});
+  if (!uid || !libraryKey) {
+    return {};
+  }
+  const stored = await pinnedStorage.getItem<Pinned>(
+    `pinned/${uid}/${libraryKey}`
+  );
+  pinnedStore.update((s) => stored || {});
+};
 
 export const pinnedStorage = localforage.createInstance({
   name: DB_NAME,
@@ -331,12 +322,13 @@ export const deleteScore = async (score: Score) => {
   );
 };
 
-export const usePinned = (libraryKey: string, scores: Score[]) => {
-  const { pinned, reset } = usePinnedState();
+export const usePinned = (libraryKey: string) => {
+  const pinned = pinnedStore.useState((s) => s);
+  const { scores } = useLibraryScores(libraryKey);
 
   useEffect(() => {
     reset(libraryKey);
-  }, [libraryKey, reset]);
+  }, [libraryKey]);
 
   return useMemo(() => {
     return scores.filter((score) => {

@@ -6,8 +6,8 @@ import useSWR from "swr";
 import { useEffect } from "react";
 import { getPdf, renderPage } from "./pdf";
 import toast from "react-hot-toast";
-import { create } from "zustand";
 import { useUserId } from "./auth";
+import { Store } from "pullstate";
 
 export enum Cache {
   Success = 1,
@@ -15,24 +15,14 @@ export enum Cache {
   Working,
 }
 
-type CacheSetter = (key: string, state: Cache) => void;
-export type StoreShape = {
-  cache: { [key: string]: Cache };
-  setCacheState: CacheSetter;
-};
+type StoreShape = { [key: string]: Cache };
+export const cacheStore = new Store<StoreShape>({});
 
-export const useCacheState = create<StoreShape>()((set) => {
-  return {
-    cache: {},
-    setCacheState: (key: string, state: Cache) => {
-      set((s) => {
-        return {
-          cache: { ...s.cache, [key]: state },
-        };
-      });
-    },
-  };
-});
+const setCacheState = (key: string, state: Cache) => {
+  cacheStore.update((s) => {
+    return { ...s, [key]: state };
+  });
+};
 
 export const cache = localforage.createInstance({
   name: DB_NAME,
@@ -57,11 +47,7 @@ const cachePart = async (part: Part) => {
   }
 };
 
-export const cacheScore = async (
-  score: Score,
-  keys: string[],
-  setCacheState: CacheSetter
-) => {
+const cacheScore = async (score: Score, keys: string[]) => {
   try {
     setCacheState(score.key, Cache.Working);
     await Promise.all(
@@ -107,12 +93,14 @@ export const useAllScores = () => {
   return { scores: data || [], mutate };
 };
 
-export const useCache = () => {
+export const useCache = () => cacheStore.useState((s) => s);
+
+export const useCacheWorker = () => {
   const { scores } = useAllScores();
-  const { setCacheState } = useCacheState();
 
   useEffect(() => {
     let cancelled = false;
+
     (async () => {
       const keys = await cache.keys();
       for (let i = 0; i < scores.length; i++) {
@@ -120,13 +108,14 @@ export const useCache = () => {
         toast.loading(`Processing score ${i + 1} of ${scores.length}`, {
           id: "process",
         });
-        await cacheScore(score, keys, setCacheState);
+        await cacheScore(score, keys);
         if (cancelled) {
           break;
         }
       }
       toast.remove("process");
     })();
+
     return () => {
       cancelled = true;
     };

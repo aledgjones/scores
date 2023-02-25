@@ -1,5 +1,5 @@
 import localforage from "localforage";
-import { UserId } from "./auth";
+import { getUserId, UserId } from "./auth";
 import { DB_NAME } from "./db";
 import { Tool } from "./ui";
 
@@ -63,12 +63,13 @@ export const drawLine = (
 };
 
 export const storeAnnotation = async (
-  uid: UserId,
   scoreKey: string,
   partKey: string,
   page: number,
   instructions: DrawInstructions
 ) => {
+  const uid = getUserId();
+
   await annotations.setItem(
     `annotation/${uid}/${scoreKey}/${partKey}/${page}`,
     instructions
@@ -76,11 +77,12 @@ export const storeAnnotation = async (
 };
 
 export const retreiveAnnotation = async (
-  uid: UserId,
   scoreKey: string,
   partKey: string,
   page: number
 ): Promise<DrawInstructions> => {
+  const uid = getUserId();
+
   return (
     (await annotations.getItem(
       `annotation/${uid}/${scoreKey}/${partKey}/${page}`

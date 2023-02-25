@@ -1,52 +1,46 @@
 import { useEffect } from "react";
-import { create } from "zustand";
 import { supabase } from "./db";
 import { createLibrary } from "./libraries";
 import { useAsync } from "react-use";
+import { Store } from "pullstate";
 
 export type UserId = string | null;
 export type Email = string | null;
 export type AuthShape = { uid: UserId; email: Email };
 
-export type StoreShape = {
-  auth: AuthShape | null | undefined;
-  setAuthSession: () => Promise<void>;
+export type StoreShape = AuthShape | null | undefined;
+export const authStore = new Store<StoreShape>(undefined);
+
+const setAuthSession = async () => {
+  const { data } = await supabase.auth.getSession();
+
+  if (data.session?.user?.id) {
+    authStore.update((s) => {
+      return {
+        uid: data.session.user.id,
+        email: data.session.user.email,
+      };
+    });
+  } else {
+    authStore.update((s) => {
+      return null;
+    });
+  }
 };
 
-export const useAuth = create<StoreShape>()((set) => {
-  return {
-    auth: undefined,
-    setAuthSession: async () => {
-      const { data } = await supabase.auth.getSession();
-
-      if (data.session?.user?.id) {
-        set({
-          auth: { uid: data.session.user.id, email: data.session.user.email },
-        });
-      } else {
-        set({ auth: null });
-      }
-    },
-  };
-});
-
 export const useUserId = (): string | null => {
-  const { auth } = useAuth();
-
-  return auth?.uid || null;
+  return authStore.useState((s) => s?.uid || null);
 };
 
 export const getUserId = (): string | null => {
-  return useAuth.getState().auth?.uid || null;
+  return authStore.getRawState()?.uid || null;
 };
 
 export const getUserEmail = (): string | null => {
-  return useAuth.getState().auth?.email || null;
+  return authStore.getRawState()?.email || null;
 };
 
 export const useAuthListener = () => {
-  const { setAuthSession } = useAuth();
-
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange(() => setAuthSession());
 
@@ -57,11 +51,11 @@ export const useAuthListener = () => {
 };
 
 export const useResumeSession = () => {
-  const { setAuthSession, auth } = useAuth();
+  const state = authStore.useState((s) => s);
 
   useAsync(setAuthSession, []);
 
-  return auth;
+  return state;
 };
 
 export const login = async (email: string, password: string) => {
@@ -112,3 +106,5 @@ export const signUp = async (
 export const signOut = async () => {
   await supabase.auth.signOut();
 };
+
+export const useAuth = () => authStore.useState((s) => s);

@@ -68,12 +68,11 @@ const FilesList: FC<Props> = ({
           strategy={verticalListSortingStrategy}
         >
           <div className={classNames("files", { "files--working": working })}>
-            {files.map(({ key, file, url, name, state }, index) => {
+            {files.map(({ key, file, url, name, state }) => {
               return (
                 <FilesListItem
                   key={key}
                   id={key}
-                  index={index}
                   url={url}
                   file={file}
                   name={name}

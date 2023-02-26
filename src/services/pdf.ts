@@ -30,7 +30,7 @@ export const renderPage = async (pdf: PDFDocumentProxy, pageNumber: number) => {
   });
   await renderTask.promise;
 
-  return canvas.toBlob({ type: "image/webp", quality: 0.1 });
+  return canvas.toBlob({ type: "image/webp", quality: 0.5 });
 };
 
 type CacheEntry = { pdf: Blob; thumb: Blob };

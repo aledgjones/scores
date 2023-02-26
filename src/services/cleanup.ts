@@ -13,7 +13,7 @@ export const STORE_VERSIONS = new Map([
   [StoreKeys.Annotations, 1],
   [StoreKeys.LastLibrary, 1],
   [StoreKeys.Pinned, 1],
-  [StoreKeys.ScoreCache, 3],
+  [StoreKeys.ScoreCache, 4],
 ]);
 
 export const getStoreName = (key: StoreKeys) => {

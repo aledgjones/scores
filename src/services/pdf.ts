@@ -29,10 +29,11 @@ export const renderPage = async (pdf: PDFDocumentProxy, pageNumber: number) => {
     viewport,
   });
   await renderTask.promise;
-  const blob = await canvas.toBlob({ type: "image/webp" });
 
-  return URL.createObjectURL(blob);
+  return canvas.toBlob({ type: "image/webp", quality: 0.1 });
 };
+
+type CacheEntry = { pdf: Blob; thumb: Blob };
 
 export const usePDF = (
   index: number,
@@ -52,8 +53,15 @@ export const usePDF = (
 
     (async () => {
       const key = `/${scoreKey}/${partKey}.pdf`;
-      const blob = await cache.getItem<Blob>(key);
-      doc = await getPdf(blob);
+      const { pdf, thumb } = await cache.getItem<CacheEntry>(key);
+
+      rendered.current[1] = true;
+      setPages(() => {
+        return { 0: URL.createObjectURL(thumb) };
+      });
+
+      doc = await getPdf(pdf);
+
       setPdf(doc);
       setCount(doc.numPages);
     })();
@@ -88,7 +96,10 @@ export const usePDF = (
           rendered.current[i] = true;
         }
 
-        const url = await renderPage(pdf, i);
+        console.log("RENDER:", i);
+
+        const blob = await renderPage(pdf, i);
+        const url = URL.createObjectURL(blob);
 
         setPages((s) => {
           return { ...s, [i - 1]: url };

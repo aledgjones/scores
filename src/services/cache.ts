@@ -8,6 +8,7 @@ import { useUserId } from "./auth";
 import { Store } from "pullstate";
 import { getStoreName, StoreKeys } from "./cleanup";
 import { uiStore } from "./ui";
+import { getPdf, renderPage } from "./pdf";
 
 export enum Cache {
   Success = 1,
@@ -36,7 +37,11 @@ const cachePart = async (part: Part) => {
   if (error) {
     throw new Error("not-found");
   } else {
-    cache.setItem("/" + part.url, blob);
+    const pdf = await getPdf(blob);
+    const thumb = await renderPage(pdf, 1);
+    await pdf.destroy();
+
+    cache.setItem("/" + part.url, { pdf: blob, thumb });
   }
 };
 

@@ -3,7 +3,6 @@ import {
   mdiClose,
   mdiDeleteOutline,
   mdiDotsVertical,
-  mdiOpenInNew,
   mdiPencilOutline,
 } from "@mdi/js";
 import Icon from "@mdi/react";
@@ -30,8 +29,6 @@ import useScrollPosition from "../ui/utils/use-scroll-position";
 import Tooltip from "../ui/components/tooltip";
 import classNames from "classnames";
 import Button from "../ui/components/button";
-import { noop } from "../ui/utils/noop";
-import pretty from "pretty-bytes";
 import Divider from "../ui/components/divider";
 import { useUserId } from "../services/auth";
 
@@ -102,7 +99,7 @@ export const LibraryKeySettings = () => {
             </div>
           </div>
         </section>
-        {isOwner && (
+        {/* {isOwner && (
           <section className="section">
             <Subheader>Billing Plan</Subheader>
             <div className="hero-content">
@@ -138,7 +135,7 @@ export const LibraryKeySettings = () => {
               </div>
             </div>
           </section>
-        )}
+        )} */}
         <section className="section">
           <Subheader>Members</Subheader>
           {members.map((user) => {

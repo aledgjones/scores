@@ -8,6 +8,7 @@ import IconButton from "../../ui/components/icon-button";
 import { openScoreSheet } from "../../services/ui";
 import OfflineIndicator from "../offline-indicator";
 import { Link, useParams } from "react-router-dom";
+import { Cache, useCachedState } from "../../services/cache";
 
 interface Props {
   listKey: string;
@@ -28,6 +29,7 @@ const ScoreItem: FC<Props> = ({
   const toggleKey = `${score.key}-${listKey}`;
   const isToggled = toggled === toggleKey;
   const { libraryKey } = useParams();
+  const state = useCachedState(score.key);
 
   return (
     <>
@@ -39,13 +41,20 @@ const ScoreItem: FC<Props> = ({
       >
         {inView && (
           <div
-            onClick={() => onToggle(toggleKey)}
+            onClick={() => {
+              if (state === Cache.Success) {
+                onToggle(toggleKey);
+              }
+            }}
             className={classNames("item", { "item--inline": inline })}
           >
             <div className="background" />
             <div className="item-content">
-              <OfflineIndicator scoreKey={score.key} />
-              <div className="info">
+              <OfflineIndicator state={state} />
+              <div
+                className="info"
+                style={{ opacity: state === Cache.Success ? 1 : 0.4 }}
+              >
                 <p
                   className="title"
                   dangerouslySetInnerHTML={{ __html: score.title }}

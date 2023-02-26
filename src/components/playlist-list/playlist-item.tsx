@@ -14,6 +14,7 @@ import { openPlaylistScoreSheet } from "../../services/ui";
 import Tag from "../../ui/components/tag";
 import { Link, useParams } from "react-router-dom";
 import { useSortable } from "@dnd-kit/sortable";
+import { Cache, useCachedState } from "../../services/cache";
 
 interface Props {
   listKey: string;
@@ -36,6 +37,7 @@ const PlaylistItem: FC<Props> = ({
   const toggleKey = `${score.playlistKey}-${listKey}`;
   const isToggled = toggled === toggleKey;
   const { playlistKey } = useParams();
+  const state = useCachedState(score.key);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: score.playlistKey });
@@ -57,7 +59,11 @@ const PlaylistItem: FC<Props> = ({
         {inView && (
           <div
             ref={setNodeRef}
-            onClick={() => onToggle(toggleKey)}
+            onClick={() => {
+              if (state === Cache.Success) {
+                onToggle(toggleKey);
+              }
+            }}
             className="item"
           >
             <div className="background" />
@@ -74,7 +80,10 @@ const PlaylistItem: FC<Props> = ({
                   style={{ cursor: "grab" }}
                 />
               )}
-              <div className="info">
+              <div
+                className="info"
+                style={{ opacity: state === Cache.Success ? 1 : 0.4 }}
+              >
                 <p
                   className="title"
                   dangerouslySetInnerHTML={{ __html: score.title }}

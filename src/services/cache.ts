@@ -92,6 +92,11 @@ export const useAllScores = () => {
 };
 
 export const useCache = () => cacheStore.useState((s) => s);
+export const useCachedState = (scoreKey: string) => {
+  const cache = useCache();
+
+  return cache[scoreKey] || Cache.Working;
+};
 
 export const useCacheWorker = () => {
   const online = uiStore.useState((s) => s.online);

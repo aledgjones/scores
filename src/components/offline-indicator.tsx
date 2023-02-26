@@ -5,13 +5,10 @@ import { Cache, useCache } from "../services/cache";
 import Spinner from "../ui/components/spinner";
 
 interface Props {
-  scoreKey: string;
+  state: Cache;
 }
 
-const OfflineIndicator: FC<Props> = ({ scoreKey }) => {
-  const cache = useCache();
-  const state = cache[scoreKey] || Cache.Working;
-
+const OfflineIndicator: FC<Props> = ({ state }) => {
   return (
     <>
       {(!state || state === Cache.Working) && (

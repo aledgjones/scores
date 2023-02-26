@@ -61,7 +61,7 @@ const Whiteboard: FC<Props> = ({
   const isActive = useRef<boolean>(false);
 
   // these need to be props
-  const thickness = tool === Tool.pen ? DPR : 20 * DPR;
+  const thickness = tool === Tool.pen ? 1.5 * DPR : 20 * DPR;
 
   const render = () => {
     if (canvas.current) {

@@ -124,9 +124,10 @@ export const Toolbox: FC<Props> = ({
           <Icon path={mdiRedoVariant} size={1} />
         </IconButton>
         <div className="spacer" />
-        <IconButton onClick={onZoomIn} className="margin" ariaLabel="Zoom In">
+        <IconButton onClick={onZoomIn} ariaLabel="Zoom In">
           <Icon path={mdiMagnifyPlusOutline} size={1} />
         </IconButton>
+        <p className="zoom">{Math.floor(scale * 100)}%</p>
         <IconButton
           disabled={scale === 1}
           onClick={onZoomOut}
@@ -148,12 +149,12 @@ export const Toolbox: FC<Props> = ({
           align-items: center;
           position: fixed;
           top: 50%;
-          left: 20px;
+          left: 0;
           transform: translateY(-50%);
           padding: 14px 0;
           width: 56px;
           box-shadow: var(--shadow);
-          border-radius: 28px;
+          border-radius: 0 28px 28px 0;
           z-index: 2000;
           background-color: #fff;
           pointer-events: all;
@@ -161,7 +162,7 @@ export const Toolbox: FC<Props> = ({
         .color-picker {
           position: fixed;
           top: 50%;
-          left: 84px;
+          left: 64px;
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           grid-template-rows: repeat(3, 1fr);
@@ -210,6 +211,10 @@ export const Toolbox: FC<Props> = ({
           background-color: rgb(200, 200, 200);
           margin-top: 8px;
           margin-bottom: 20px;
+        }
+        .zoom {
+          margin: 8px 0;
+          font-size: 0.8em;
         }
       `}</style>
     </>

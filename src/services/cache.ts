@@ -4,11 +4,10 @@ import { Part, Score } from "./scores";
 import { useLibraries } from "./libraries";
 import useSWR from "swr";
 import { useEffect } from "react";
-import { getPdf, renderPage } from "./pdf";
-import toast from "react-hot-toast";
 import { useUserId } from "./auth";
 import { Store } from "pullstate";
 import { getStoreName, StoreKeys } from "./cleanup";
+import { uiStore } from "./ui";
 
 export enum Cache {
   Success = 1,
@@ -37,14 +36,7 @@ const cachePart = async (part: Part) => {
   if (error) {
     throw new Error("not-found");
   } else {
-    const pages = [];
-    const doc = await getPdf(blob);
-    for (let i = 0; i < doc.numPages; i++) {
-      const img = await renderPage(doc, i + 1);
-      pages.push(img);
-    }
-    doc.destroy();
-    cache.setItem("/" + part.url, pages);
+    cache.setItem("/" + part.url, blob);
   }
 };
 
@@ -97,6 +89,7 @@ export const useAllScores = () => {
 export const useCache = () => cacheStore.useState((s) => s);
 
 export const useCacheWorker = () => {
+  const online = uiStore.useState((s) => s.online);
   const { scores } = useAllScores();
 
   useEffect(() => {
@@ -105,20 +98,17 @@ export const useCacheWorker = () => {
     (async () => {
       const keys = await cache.keys();
       for (let i = 0; i < scores.length; i++) {
-        const score = scores[i];
-        toast.loading(`Processing score ${i + 1} of ${scores.length}`, {
-          id: "process",
-        });
-        await cacheScore(score, keys);
         if (cancelled) {
           break;
         }
+
+        const score = scores[i];
+        await cacheScore(score, keys);
       }
-      toast.remove("process");
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [scores]);
+  }, [scores, online]);
 };

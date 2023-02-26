@@ -16,7 +16,7 @@ import PlaylistScoreSheet from "./components/playlist-score-sheet";
 import ScoreSheet from "./components/score-sheet";
 import { useAuth, useAuthListener } from "./services/auth";
 import { useCacheWorker } from "./services/cache";
-import { useCleanup } from "./services/cleanup";
+import { useCleanupWorker } from "./services/cleanup";
 import { useLibraries } from "./services/libraries";
 import { usePlaylists } from "./services/playlists";
 import {
@@ -33,7 +33,8 @@ import {
   closePlaylistScoreSheet,
   closePlaylistSheet,
   closeScoreSheet,
-  ui,
+  uiStore,
+  useConnectionWorker,
 } from "./services/ui";
 import { useWakeLock } from "./ui/utils/wake-lock";
 
@@ -45,7 +46,8 @@ export const Shell = () => {
   useLibraries();
   usePlaylists();
   useCacheWorker();
-  useCleanup();
+  useCleanupWorker();
+  useConnectionWorker();
 
   const auth = useAuth();
 
@@ -69,7 +71,7 @@ export const Shell = () => {
     inviteToLibrary,
     manageLibraryMember,
     drawer,
-  } = ui.useState((s) => s);
+  } = uiStore.useState((s) => s);
 
   return (
     <>

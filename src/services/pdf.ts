@@ -1,9 +1,5 @@
-import {
-  GlobalWorkerOptions,
-  getDocument,
-  PDFDocumentProxy,
-} from "pdfjs-dist/legacy/build/pdf";
-import { useEffect, useState } from "react";
+import { GlobalWorkerOptions, getDocument, PDFDocumentProxy } from "pdfjs-dist";
+import { useEffect, useRef, useState } from "react";
 import { getOffscreenCanvas } from "../ui/utils/get-offscreen-canvas";
 import { cache } from "./cache";
 import { fitAInsideB } from "./utils";
@@ -33,43 +29,73 @@ export const renderPage = async (pdf: PDFDocumentProxy, pageNumber: number) => {
     viewport,
   });
   await renderTask.promise;
-  return canvas.toBlob({ type: "image/webp" });
+  const blob = await canvas.toBlob({ type: "image/webp" });
+
+  return URL.createObjectURL(blob);
 };
 
 export const usePDF = (
+  index: number,
   scoreKey: string,
   partKey: string,
-  onReset?: () => void
+  onReset: () => void = () => {}
 ) => {
-  const [pages, setPages] = useState<string[]>([null]);
+  const page = index + 1;
+
+  const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
+  const [count, setCount] = useState(0);
+  const [pages, setPages] = useState<{ [page: string]: string }>({});
+  const rendered = useRef({});
 
   useEffect(() => {
-    let unmounted = false;
-    const urls = [];
+    let doc: PDFDocumentProxy | null = null;
+
     (async () => {
-      if (onReset) {
-        setPages([]);
-        onReset();
-      }
       const key = `/${scoreKey}/${partKey}.pdf`;
-      const imgs = (await cache.getItem<Blob[]>(key)) || [];
-      if (!unmounted) {
-        setPages(() => {
-          return imgs.map((img) => {
-            const url = URL.createObjectURL(img);
-            urls.push(url);
-            return url;
-          });
-        });
-      }
+      const blob = await cache.getItem<Blob>(key);
+      doc = await getPdf(blob);
+      setPdf(doc);
+      setCount(doc.numPages);
     })();
+
     return () => {
-      unmounted = true;
-      urls.forEach((url) => {
-        URL.revokeObjectURL(url);
+      rendered.current = {};
+      doc?.destroy();
+      onReset();
+      setPdf(null);
+      setPages((s) => {
+        for (const url of Object.values(s)) {
+          URL.revokeObjectURL(url);
+        }
+        return {};
       });
     };
   }, [scoreKey, partKey]);
 
-  return { count: pages.length || 0, pages };
+  useEffect(() => {
+    if (!pdf) {
+      return;
+    }
+
+    (async () => {
+      const min = Math.max(1, page);
+      const max = Math.min(page + 2, pdf.numPages);
+
+      for (let i = min; i <= max; i++) {
+        if (rendered.current[i]) {
+          continue;
+        } else {
+          rendered.current[i] = true;
+        }
+
+        const url = await renderPage(pdf, i);
+
+        setPages((s) => {
+          return { ...s, [i - 1]: url };
+        });
+      }
+    })();
+  }, [pdf, page]);
+
+  return { count, pages };
 };

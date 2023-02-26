@@ -9,7 +9,7 @@ import SearchBar from "../components/search-bar";
 import ScoresList from "../components/scores-list/scores-list";
 import NewScore from "../components/new-score";
 import EditScore from "../components/edit-score";
-import { closeEditScore, ui } from "../services/ui";
+import { closeEditScore, uiStore } from "../services/ui";
 import { usePinned, usePinnedWorker } from "../services/pinned";
 
 export const LibraryKey = () => {
@@ -24,7 +24,7 @@ export const LibraryKey = () => {
   const [newScore, setNewScore] = useState(false);
   const [toggled, setToggled] = useState<string>();
 
-  const editScore = ui.useState((s) => s.editScore);
+  const editScore = uiStore.useState((s) => s.editScore);
 
   const onToggle = (key: string) => {
     setToggled((value) => {

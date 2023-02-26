@@ -15,7 +15,7 @@ import {
   closePlaylistSheet,
   openPlaylistSheet,
   Tool,
-  ui,
+  uiStore,
 } from "../services/ui";
 import { usePDF } from "../services/pdf";
 import IconButton from "../ui/components/icon-button";
@@ -34,12 +34,12 @@ export const PlaylistKeyScore = () => {
 
   const [page, setPage] = useState(0);
   const [overview, setOverview] = useState(false);
-  const drawOpen = ui.useState((s) => s.playlistSheet.open);
+  const drawOpen = uiStore.useState((s) => s.playlistSheet.open);
   const [flash, setFlash] = useState<Direction | null>(null);
   const [tool, setTool] = useState(Tool.cursor);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const { count, pages } = usePDF(scoreKey, partKey, () => {
+  const { count, pages } = usePDF(page, scoreKey, partKey, () => {
     setPage(0);
     setOverview(false);
     closePlaylistSheet();

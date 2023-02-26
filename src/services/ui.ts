@@ -1,4 +1,5 @@
 import { Store } from "pullstate";
+import { useEffect } from "react";
 import { Library } from "./libraries";
 import { Playlist } from "./playlists";
 import { PlaylistScore, Score } from "./scores";
@@ -10,6 +11,7 @@ export enum Tool {
 }
 
 interface Shape {
+  online: boolean;
   drawer: boolean;
   newLibrary: { open: boolean; library?: Library };
   newPlaylist: { open: boolean; playlist?: Playlist };
@@ -30,7 +32,8 @@ interface Shape {
   };
 }
 
-export const ui = new Store<Shape>({
+export const uiStore = new Store<Shape>({
+  online: navigator.onLine,
   drawer: false,
   newLibrary: { open: false },
   newPlaylist: { open: false },
@@ -48,43 +51,43 @@ export const ui = new Store<Shape>({
 });
 
 export const openMainDrawer = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.drawer = true;
   });
 };
 
 export const closeMainDrawer = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.drawer = false;
   });
 };
 
 export const openNewLibrary = (library?: Library) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.newLibrary = { open: true, library };
   });
 };
 
 export const closeNewLibrary = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.newLibrary.open = false;
   });
 };
 
 export const openNewPlaylist = (playlist?: Playlist) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.newPlaylist = { open: true, playlist };
   });
 };
 
 export const closeNewPlaylist = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.newPlaylist.open = false;
   });
 };
 
 export const openScoreSheet = (libraryKey: string, score: Score) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.scoreSheet.open = true;
     s.scoreSheet.libraryKey = libraryKey;
     s.scoreSheet.score = score;
@@ -92,52 +95,52 @@ export const openScoreSheet = (libraryKey: string, score: Score) => {
 };
 
 export const closeScoreSheet = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.scoreSheet.open = false;
   });
 };
 
 export const openPlaylistScoreSheet = (score: PlaylistScore) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.playlistScoreSheet.open = true;
     s.playlistScoreSheet.score = score;
   });
 };
 
 export const closePlaylistScoreSheet = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.playlistScoreSheet.open = false;
   });
 };
 
 export const openAddLabel = (score: PlaylistScore) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.addLabel.open = true;
     s.addLabel.score = score;
   });
 };
 
 export const closeAddLabel = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.addLabel.open = false;
   });
 };
 
 export const openAddToPlaylist = (score: Score) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.addToPlaylist.open = true;
     s.addToPlaylist.score = score;
   });
 };
 
 export const closeAddToPlaylist = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.addToPlaylist.open = false;
   });
 };
 
 export const openEditScore = (libraryKey: string, score: Score) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.editScore.open = true;
     s.editScore.libraryKey = libraryKey;
     s.editScore.score = score;
@@ -145,13 +148,13 @@ export const openEditScore = (libraryKey: string, score: Score) => {
 };
 
 export const closeEditScore = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.editScore.open = false;
   });
 };
 
 export const openDeleteScore = (libraryKey: string, score: Score) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.deleteScore.open = true;
     s.deleteScore.libraryKey = libraryKey;
     s.deleteScore.score = score;
@@ -159,13 +162,13 @@ export const openDeleteScore = (libraryKey: string, score: Score) => {
 };
 
 export const closeDeleteScore = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.deleteScore.open = false;
   });
 };
 
 export const openDeleteLibrary = (library: Library, scores: Score[]) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.deleteLibrary.open = true;
     s.deleteLibrary.library = library;
     s.deleteLibrary.scores = scores;
@@ -173,26 +176,26 @@ export const openDeleteLibrary = (library: Library, scores: Score[]) => {
 };
 
 export const closeDeleteLibrary = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.deleteLibrary.open = false;
   });
 };
 
 export const openDeletePlaylist = (playlist: Playlist) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.deletePlaylist.open = true;
     s.deletePlaylist.playlist = playlist;
   });
 };
 
 export const closeDeletePlaylist = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.deletePlaylist.open = false;
   });
 };
 
 export const openPlaylistSheet = (playlistKey: string, selection?: string) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.playlistSheet.open = true;
     s.playlistSheet.playlistKey = playlistKey;
     s.playlistSheet.selection = selection;
@@ -200,26 +203,26 @@ export const openPlaylistSheet = (playlistKey: string, selection?: string) => {
 };
 
 export const closePlaylistSheet = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.playlistSheet.open = false;
   });
 };
 
 export const openInviteToLirary = (libraryKey: string) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.inviteToLibrary.open = true;
     s.inviteToLibrary.libraryKey = libraryKey;
   });
 };
 
 export const closeInviteToLibrary = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.inviteToLibrary.open = false;
   });
 };
 
 export const openManageLibraryMember = (libraryKey: string, uid: string) => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.manageLibraryMember.open = true;
     s.manageLibraryMember.libraryKey = libraryKey;
     s.manageLibraryMember.uid = uid;
@@ -227,7 +230,30 @@ export const openManageLibraryMember = (libraryKey: string, uid: string) => {
 };
 
 export const closeManageLibraryMember = () => {
-  ui.update((s) => {
+  uiStore.update((s) => {
     s.manageLibraryMember.open = false;
   });
+};
+
+export const useConnectionWorker = () => {
+  useEffect(() => {
+    const online = () => {
+      uiStore.update((s) => {
+        s.online = true;
+      });
+    };
+    const offline = () => {
+      uiStore.update((s) => {
+        s.online = false;
+      });
+    };
+
+    window.addEventListener("online", online);
+    window.addEventListener("offline", offline);
+
+    return () => {
+      window.removeEventListener("online", online);
+      window.removeEventListener("offline", offline);
+    };
+  }, []);
 };

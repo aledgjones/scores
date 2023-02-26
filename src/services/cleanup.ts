@@ -13,7 +13,7 @@ export const STORE_VERSIONS = new Map([
   [StoreKeys.Annotations, 1],
   [StoreKeys.LastLibrary, 1],
   [StoreKeys.Pinned, 1],
-  [StoreKeys.ScoreCache, 1],
+  [StoreKeys.ScoreCache, 2],
 ]);
 
 export const getStoreName = (key: StoreKeys) => {
@@ -28,7 +28,7 @@ const cleanup = async (key: string, version: number) => {
   });
 };
 
-export const useCleanup = () => {
+export const useCleanupWorker = () => {
   useAsync(async () => {
     const entries = STORE_VERSIONS.entries();
     for (const [key, version] of entries) {

@@ -29,7 +29,7 @@ export const ScorePage = () => {
   const [tool, setTool] = useState(Tool.cursor);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const { count, pages } = usePDF(scoreKey, partKey);
+  const { count, pages } = usePDF(page, scoreKey, partKey);
 
   const onBack = () => {
     navigate(-1);

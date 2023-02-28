@@ -10,7 +10,7 @@ import pkg from "../../package.json";
 import {
   mdiBellRingOutline,
   mdiBookmarkMultipleOutline,
-  mdiDownload,
+  mdiCogOutline,
   mdiDownloadCircle,
   mdiInformationOutline,
   mdiLogout,
@@ -141,7 +141,7 @@ const MainDrawer: FC = () => {
           <li className="item hover" onClick={closeMainDrawer}>
             <Icon
               className="icon"
-              path={mdiDownloadCircle}
+              path={mdiCogOutline}
               size={1}
               color="rgb(100,100,100)"
             />
@@ -151,7 +151,7 @@ const MainDrawer: FC = () => {
                 New {pluralize(invites.length, "invite", "invites")}
               </Tag>
             )}
-            {updateAvailable && <Tag path={mdiDownload}>App update</Tag>}
+            {updateAvailable && <Tag path={mdiDownloadCircle}>App update</Tag>}
           </li>
         </Link>
         <Link to={`/help-and-feedback`}>

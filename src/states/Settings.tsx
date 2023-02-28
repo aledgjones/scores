@@ -48,10 +48,11 @@ export function Settings() {
                 margin
                 primary
                 compact
-                onClick={() => {
-                  navigator.serviceWorker?.controller?.postMessage(
-                    "SKIP_WAITING"
-                  );
+                onClick={async () => {
+                  const reg = await navigator.serviceWorker.getRegistration();
+                  if (reg.waiting) {
+                    reg.waiting.postMessage("SKIP_WAITING");
+                  }
                 }}
               >
                 Restart

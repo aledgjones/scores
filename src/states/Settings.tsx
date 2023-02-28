@@ -15,11 +15,14 @@ import Subheader from "../ui/components/subheader";
 import { stringToColor } from "../ui/utils/string-to-color";
 import useScrollPosition from "../ui/utils/use-scroll-position";
 import pkg from "../../package.json";
+import { uiStore } from "../services/ui";
 
 export function Settings() {
   const navigate = useNavigate();
   const { invites, mutate } = useUserLibraryInvites();
   const top = useScrollPosition();
+
+  const updateAvailable = uiStore.useState((s) => s.updateAvailable);
 
   return (
     <>
@@ -30,6 +33,46 @@ export function Settings() {
           </IconButton>
           <h1 className="title">App Settings</h1>
         </div>
+
+        {updateAvailable && (
+          <section className="section">
+            <Subheader>APP UPDATE</Subheader>
+            <div className="user">
+              <div className="text">
+                <p>An app update is availabe</p>
+                <p className="small">
+                  Restart the app to install the new version.
+                </p>
+              </div>
+              <Button
+                margin
+                primary
+                compact
+                onClick={async () => {
+                  navigator.serviceWorker?.controller?.postMessage(
+                    "SKIP_WAITING"
+                  );
+                }}
+              >
+                Restart
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {!updateAvailable && (
+          <section className="section">
+            <Subheader>APP UPDATE</Subheader>
+            <div className="user">
+              <div className="text">
+                <p>Your app is up to date</p>
+                <p className="small">
+                  You will be notified when an update is avaialble.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         {invites.length > 0 && (
           <section className="section">
@@ -79,7 +122,8 @@ export function Settings() {
             })}
           </section>
         )}
-        <section>
+
+        <section className="section">
           <Subheader>Version Info</Subheader>
           <div className="info">
             <p>

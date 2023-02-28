@@ -2,7 +2,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { mdiClose, mdiCogOutline, mdiMagnify, mdiMenu } from "@mdi/js";
 import IconButton from "../ui/components/icon-button";
 import Icon from "@mdi/react";
-import { openMainDrawer } from "../services/ui";
+import { openMainDrawer, uiStore } from "../services/ui";
 import { useAllScores } from "../services/cache";
 import { Score } from "../services/scores";
 import fuzzysort from "fuzzysort";
@@ -24,6 +24,9 @@ const SearchBar: FC<Props> = ({ toggled, onToggle }) => {
   const [value, onChange] = useState("");
   const { scores } = useAllScores();
   const { invites } = useUserLibraryInvites();
+  const updateAvailable = uiStore.useState((s) => s.updateAvailable);
+
+  const showDot = invites.length > 0 || updateAvailable;
 
   useEffect(() => {
     const cb = (e: any) => {
@@ -68,7 +71,7 @@ const SearchBar: FC<Props> = ({ toggled, onToggle }) => {
           onClick={openMainDrawer}
         >
           <Icon path={mdiMenu} size={1} color="var(--black)" />
-          {invites.length > 0 && <div className="dot" />}
+          {showDot && <div className="dot" />}
         </IconButton>
         <input
           className={classNames("input", { "input--results": isOpen })}

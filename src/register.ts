@@ -1,3 +1,5 @@
+import { setUpdateAvailable } from "./services/ui";
+
 export function register() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
@@ -11,7 +13,7 @@ export function register() {
       // ensure the case when the update found event was missed is also handled
       // by re-invoking the prompt when there's a waiting Service Worker
       if (registration.waiting) {
-        // TODO: actions.app.update.notify();
+        setUpdateAvailable();
       }
 
       // detect Service Worker update available and wait for it to become installed
@@ -22,7 +24,7 @@ export function register() {
             if (registration.waiting) {
               // if there's an existing controller (previous Service Worker), show the prompt
               if (navigator.serviceWorker.controller) {
-                // TODO: actions.app.update.notify();
+                setUpdateAvailable();
               }
             }
           });

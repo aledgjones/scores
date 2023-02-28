@@ -11,6 +11,7 @@ export enum Tool {
 }
 
 interface Shape {
+  updateAvailable: boolean;
   online: boolean;
   drawer: boolean;
   newLibrary: { open: boolean; library?: Library };
@@ -33,6 +34,7 @@ interface Shape {
 }
 
 export const uiStore = new Store<Shape>({
+  updateAvailable: false,
   online: navigator.onLine,
   drawer: false,
   newLibrary: { open: false },
@@ -256,4 +258,10 @@ export const useConnectionWorker = () => {
       window.removeEventListener("offline", offline);
     };
   }, []);
+};
+
+export const setUpdateAvailable = () => {
+  uiStore.update((s) => {
+    s.updateAvailable = true;
+  });
 };

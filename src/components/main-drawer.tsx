@@ -11,6 +11,7 @@ import {
   mdiBellRingOutline,
   mdiBookmarkMultipleOutline,
   mdiCogOutline,
+  mdiDownload,
   mdiInformationOutline,
   mdiLogout,
   mdiPlaylistMusicOutline,
@@ -23,6 +24,7 @@ import {
   closeMainDrawer,
   openNewLibrary,
   openNewPlaylist,
+  uiStore,
 } from "../services/ui";
 import { signOut } from "../services/auth";
 import { pluralize } from "../ui/utils/pluralize";
@@ -37,6 +39,8 @@ const MainDrawer: FC = () => {
   const { libraries } = useLibraries();
   const { playlists } = usePlaylists();
   const { invites } = useUserLibraryInvites();
+
+  const updateAvailable = uiStore.useState((s) => s.updateAvailable);
 
   const onSignOut = async () => {
     closeMainDrawer();
@@ -147,6 +151,8 @@ const MainDrawer: FC = () => {
                 New {pluralize(invites.length, "invite", "invites")}
               </Tag>
             )}
+            {updateAvailable ||
+              (true && <Tag path={mdiDownload}>App update</Tag>)}
           </li>
         </Link>
         <Link to={`/help-and-feedback`}>

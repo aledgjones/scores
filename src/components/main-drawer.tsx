@@ -151,8 +151,7 @@ const MainDrawer: FC = () => {
                 New {pluralize(invites.length, "invite", "invites")}
               </Tag>
             )}
-            {updateAvailable ||
-              (true && <Tag path={mdiDownload}>App update</Tag>)}
+            {updateAvailable && <Tag path={mdiDownload}>App update</Tag>}
           </li>
         </Link>
         <Link to={`/help-and-feedback`}>

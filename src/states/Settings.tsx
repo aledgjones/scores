@@ -48,7 +48,7 @@ export function Settings() {
                 margin
                 primary
                 compact
-                onClick={async () => {
+                onClick={() => {
                   navigator.serviceWorker?.controller?.postMessage(
                     "SKIP_WAITING"
                   );

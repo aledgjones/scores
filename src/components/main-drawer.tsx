@@ -10,8 +10,8 @@ import pkg from "../../package.json";
 import {
   mdiBellRingOutline,
   mdiBookmarkMultipleOutline,
-  mdiCogOutline,
   mdiDownload,
+  mdiDownloadCircle,
   mdiInformationOutline,
   mdiLogout,
   mdiPlaylistMusicOutline,
@@ -141,7 +141,7 @@ const MainDrawer: FC = () => {
           <li className="item hover" onClick={closeMainDrawer}>
             <Icon
               className="icon"
-              path={mdiCogOutline}
+              path={mdiDownloadCircle}
               size={1}
               color="rgb(100,100,100)"
             />

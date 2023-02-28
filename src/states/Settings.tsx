@@ -1,4 +1,8 @@
-import { mdiArrowLeft, mdiBookmarkMultipleOutline } from "@mdi/js";
+import {
+  mdiArrowLeft,
+  mdiBookmarkMultipleOutline,
+  mdiDownloadCircle,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
 import toast from "react-hot-toast";
@@ -35,41 +39,36 @@ export function Settings() {
         </div>
 
         {updateAvailable && (
-          <section className="section">
-            <Subheader>APP UPDATE</Subheader>
-            <div className="user">
-              <div className="text">
-                <p>An app update is availabe</p>
-                <p className="small">
-                  Restart the app to install the new version.
-                </p>
+          <section className="update-bullet">
+            <div className="update">
+              <div className="update-text">
+                <Icon
+                  style={{ marginRight: 12 }}
+                  className="icon"
+                  path={mdiDownloadCircle}
+                  size={1}
+                  color="#fff"
+                />
+                <div className="text">
+                  <p>An app update is availabe</p>
+                  <p className="small">
+                    Restart the app to install the new version.
+                  </p>
+                </div>
               </div>
-              <Button
-                margin
-                primary
-                compact
-                onClick={async () => {
-                  const reg = await navigator.serviceWorker.getRegistration();
-                  if (reg.waiting) {
-                    reg.waiting.postMessage("SKIP_WAITING");
-                  }
-                }}
-              >
-                Restart
-              </Button>
-            </div>
-          </section>
-        )}
-
-        {!updateAvailable && (
-          <section className="section">
-            <Subheader>APP UPDATE</Subheader>
-            <div className="user">
-              <div className="text">
-                <p>Your app is up to date</p>
-                <p className="small">
-                  You will be notified when an update is avaialble.
-                </p>
+              <div className="button">
+                <Button
+                  margin
+                  compact
+                  onClick={async () => {
+                    const reg = await navigator.serviceWorker.getRegistration();
+                    if (reg.waiting) {
+                      reg.waiting.postMessage("SKIP_WAITING");
+                    }
+                  }}
+                >
+                  Restart
+                </Button>
               </div>
             </div>
           </section>
@@ -180,6 +179,26 @@ export function Settings() {
         }
         .info {
           padding: 12px 32px 12px 35px;
+        }
+        .update-bullet {
+          padding: 32px;
+          padding-top: 0;
+          padding-bottom: 20px;
+        }
+        .update {
+          border-radius: 8px;
+          background-color: rgb(var(--primary));
+          padding: 20px;
+          color: #fff;
+        }
+        .update-text {
+          display: flex;
+          align-items: center;
+        }
+        .button {
+          display: flex;
+          justify-content: flex-end;
+          margin-top: 20px;
         }
       `}</style>
     </>

@@ -171,8 +171,8 @@ const ScoreItem: FC<Props> = ({
           box-shadow: var(--shadow);
           cursor: pointer;
         }
-        .part:last-child {
-          margin-right: 30px;
+        .item :global(.part:last-child) {
+          margin-right: 20px;
         }
         .text {
           margin-left: 8px;

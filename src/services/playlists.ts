@@ -1,7 +1,16 @@
 import useSWR from "swr";
-import { UserId, useUserId, getUserId } from "./auth";
+import { useUserId, getUserId, getUserEmail } from "./auth";
 import { supabase } from "./db";
 import { PlaylistScore } from "./scores";
+
+export interface PlaylistMember {
+  uid: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  read: boolean;
+  write: boolean;
+}
 
 const getPlaylists = async (key) => {
   const [resource, uid] = key.split("/");
@@ -206,4 +215,211 @@ export const updateTag = async (scoreKey: string, tag: string) => {
   if (error) {
     throw new Error(error.message);
   }
+};
+
+const getPlaylistMembers = async (key: string) => {
+  const [resource, playlistKey] = key.split("/");
+
+  const { data } = await supabase
+    .from("playlist_members")
+    .select("user(uid, name, email, avatar),read,write")
+    .eq("playlist", playlistKey)
+    .returns<any>();
+
+  const members = data
+    .map((item) => {
+      return {
+        read: item.read,
+        write: item.write,
+        ...item.user,
+      };
+    })
+    .sort((a, b) => {
+      return a.name.toUpperCase().localeCompare(b.name.toUpperCase());
+    });
+
+  return members;
+};
+
+export const usePlaylistMember = (playlistKey: string, uid: string) => {
+  const { members, mutate } = usePlaylistMembers(playlistKey);
+  const user = members.find((member) => member.uid === uid) ?? null;
+
+  return { user, mutate };
+};
+
+export const usePlaylistMembers = (playlistKey: string) => {
+  const key = playlistKey ? `playlist-members/${playlistKey}` : null;
+  const { data, mutate } = useSWR<PlaylistMember[]>(key, getPlaylistMembers);
+
+  return { members: data || [], mutate };
+};
+
+const getPlaylistInvites = async (key: string) => {
+  const [resource, playlistKey] = key.split("/");
+  const { data } = await supabase
+    .from("playlist_invites")
+    .select("email")
+    .match({ playlist: playlistKey });
+
+  return data.map((item) => item.email);
+};
+
+export const usePlaylistInvites = (playlistKey: string) => {
+  const key = playlistKey ? `playlist-invites/${playlistKey}` : null;
+  const { data, mutate } = useSWR<string[]>(key, getPlaylistInvites);
+
+  return { invites: data || [], mutate };
+};
+
+const getHasPlaylistInvite = async (playlistKey: string, email: string) => {
+  const { data } = await supabase
+    .from("playlist_invites")
+    .select("key")
+    .match({ playlist: playlistKey, email });
+
+  return data.length > 0;
+};
+
+export const sendInviteToPlaylist = async (
+  playlistKey: string,
+  email: string
+) => {
+  const hasPlaylistInvite = await getHasPlaylistInvite(playlistKey, email);
+  const members: PlaylistMember[] = await getPlaylistMembers(
+    `playlist-members/${playlistKey}`
+  );
+
+  const isMember = !!members.find((user) => user.email === email);
+
+  if (hasPlaylistInvite) {
+    throw new Error("Invite is already sent, please wait for a response");
+  }
+
+  if (isMember) {
+    throw new Error("This user is already a member of this playlist");
+  }
+
+  const { error } = await supabase
+    .from("playlist_invites")
+    .insert({ playlist: playlistKey, email });
+  if (error) {
+    throw new Error("Something went wrong, please try again.");
+  }
+};
+
+export const revokePlaylistInvite = async (
+  playlistKey: string,
+  email: string
+) => {
+  const { error } = await supabase
+    .from("playlist_invites")
+    .delete()
+    .match({ playlist: playlistKey, email });
+  if (error) {
+    throw new Error("Something went wrong, please try again.");
+  }
+};
+
+export const revokePlaylistAccess = async (
+  playlistKey: string,
+  uid: string
+) => {
+  const { error } = await supabase
+    .from("playlist_members")
+    .delete()
+    .match({ playlist: playlistKey, user: uid });
+  if (error) {
+    throw new Error("Something went wrong, please try again.");
+  }
+};
+
+export const updatePlaylistUserPermissions = (
+  playlistKey: string,
+  user: PlaylistMember | undefined,
+  read: boolean,
+  write: boolean
+) => {
+  if (!user) {
+    throw new Error("Something went wrong. Please try again.");
+  }
+
+  return supabase
+    .from("playlist_members")
+    .update({ read, write })
+    .match({ user: user.uid, playlist: playlistKey });
+};
+
+const getUserPlaylistInvites = async (key: string) => {
+  const [resource, email] = key.split("/");
+
+  const { data } = await supabase
+    .from("playlist_invites")
+    .select("key,playlist(key,name,owner(name))")
+    .match({ email })
+    .returns<any>();
+
+  return data.map((item) => {
+    return {
+      key: item.key,
+      playlistKey: item.playlist.key,
+      name: item.playlist.name,
+      owner: item.playlist.owner.name,
+    };
+  });
+};
+
+interface Invite {
+  key: string;
+  playlistKey: string;
+  name: string;
+  owner: string;
+}
+
+export const useUserPlaylistInvites = () => {
+  const email = getUserEmail();
+  const key = `user-playlist-invites/${email}`;
+  const { data, mutate } = useSWR<Invite[]>(() => {
+    return email ? key : null;
+  }, getUserPlaylistInvites);
+
+  const invites = data || [];
+
+  return { invites, mutate };
+};
+
+export const acceptPlaylistInvite = async (playlistKey: string) => {
+  const uid = getUserId();
+  const email = getUserEmail();
+
+  // check for the invite they are trying to accept
+  const hasInvite = await getHasPlaylistInvite(playlistKey, email);
+
+  if (!hasInvite) {
+    throw new Error("The invite was not found for this playlist");
+  }
+
+  // add playlist memnber
+  await supabase.from("playlist_members").insert({
+    user: uid,
+    playlist: playlistKey,
+    read: true,
+    write: false,
+  });
+
+  // delete invite
+  return supabase
+    .from("playlist_invites")
+    .delete()
+    .match({ playlist: playlistKey, email });
+};
+
+export const rejectPlaylistInvite = async (playlistKey: string) => {
+  const email = getUserEmail();
+
+  // delete invite
+  return supabase
+    .from("playlist_invites")
+    .delete()
+    .match({ playlist: playlistKey, email });
 };

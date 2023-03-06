@@ -7,8 +7,10 @@ import DeleteLibrary from "./components/delete-library";
 import DeletePlaylist from "./components/delete-playlist";
 import DeleteScore from "./components/delete-score";
 import InviteToLibrary from "./components/invite-to-library";
+import InviteToPlaylist from "./components/invite-to-playlist";
 import MainDrawer from "./components/main-drawer";
 import ManageLibraryMember from "./components/manage-library-member";
+import ManagePlaylistMember from "./components/manage-playlist-member";
 import NewLibrary from "./components/new-library";
 import NewPlaylist from "./components/new-playlist";
 import PlaylistDrawer from "./components/playlist-drawer";
@@ -26,8 +28,10 @@ import {
   closeDeletePlaylist,
   closeDeleteScore,
   closeInviteToLibrary,
+  closeInviteToPlaylist,
   closeMainDrawer,
   closeManageLibraryMember,
+  closeManagePlaylistMember,
   closeNewLibrary,
   closeNewPlaylist,
   closePlaylistScoreSheet,
@@ -67,9 +71,11 @@ export const Shell = () => {
     deleteScore,
     deleteLibrary,
     deletePlaylist,
+    inviteToPlaylist,
     playlistSheet,
     inviteToLibrary,
     manageLibraryMember,
+    managePlaylistMember,
     drawer,
   } = uiStore.useState((s) => s);
 
@@ -177,6 +183,19 @@ export const Shell = () => {
         playlistKey={playlistSheet.playlistKey}
         selection={playlistSheet.selection}
         onClose={closePlaylistSheet}
+      />
+
+      <InviteToPlaylist
+        playlistKey={inviteToPlaylist.playlistKey}
+        open={inviteToPlaylist.open}
+        onClose={closeInviteToPlaylist}
+      />
+
+      <ManagePlaylistMember
+        open={managePlaylistMember.open}
+        playlistKey={managePlaylistMember.playlistKey}
+        uid={managePlaylistMember.uid}
+        onClose={closeManagePlaylistMember}
       />
     </>
   );

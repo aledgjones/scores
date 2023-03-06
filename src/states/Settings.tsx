@@ -2,6 +2,7 @@ import {
   mdiArrowLeft,
   mdiBookmarkMultipleOutline,
   mdiDownloadCircle,
+  mdiPlaylistMusicOutline,
 } from "@mdi/js";
 import Icon from "@mdi/react";
 import classNames from "classnames";
@@ -20,10 +21,18 @@ import { stringToColor } from "../ui/utils/string-to-color";
 import useScrollPosition from "../ui/utils/use-scroll-position";
 import pkg from "../../package.json";
 import { uiStore } from "../services/ui";
+import {
+  acceptPlaylistInvite,
+  rejectPlaylistInvite,
+  useUserPlaylistInvites,
+} from "../services/playlists";
 
 export function Settings() {
   const navigate = useNavigate();
-  const { invites, mutate } = useUserLibraryInvites();
+  const { invites: libraryInvites, mutate: libraryMutate } =
+    useUserLibraryInvites();
+  const { invites: playlistInvites, mutate: playlistMutate } =
+    useUserPlaylistInvites();
   const top = useScrollPosition();
 
   const updateAvailable = uiStore.useState((s) => s.updateAvailable);
@@ -74,10 +83,10 @@ export function Settings() {
           </section>
         )}
 
-        {invites.length > 0 && (
+        {libraryInvites.length > 0 && (
           <section className="section">
             <Subheader>Library invites</Subheader>
-            {invites.map(({ key, libraryKey, name, owner }) => {
+            {libraryInvites.map(({ key, libraryKey, name, owner }) => {
               const color = stringToColor(name);
               return (
                 <div className="user" key={key}>
@@ -96,7 +105,7 @@ export function Settings() {
                       try {
                         await acceptLibraryInvite(libraryKey);
                         toast.success("Library added");
-                        mutate();
+                        libraryMutate();
                       } catch (e) {
                         toast.error(e.message);
                       }
@@ -109,7 +118,56 @@ export function Settings() {
                     onClick={async () => {
                       try {
                         await rejectLibraryInvite(libraryKey);
-                        mutate();
+                        libraryMutate();
+                      } catch (e) {
+                        toast.error(e.message);
+                      }
+                    }}
+                  >
+                    Reject
+                  </Button>
+                </div>
+              );
+            })}
+          </section>
+        )}
+
+        {playlistInvites.length > 0 && (
+          <section className="section">
+            <Subheader>Playlist invites</Subheader>
+            {playlistInvites.map(({ key, playlistKey, name, owner }) => {
+              const color = stringToColor(name);
+              return (
+                <div className="user" key={key}>
+                  <Avatar color={color} margin>
+                    <Icon path={mdiPlaylistMusicOutline} size={1} />
+                  </Avatar>
+                  <div className="text">
+                    <p>{name}</p>
+                    <p className="small">Request from {owner}</p>
+                  </div>
+                  <Button
+                    margin
+                    primary
+                    compact
+                    onClick={async () => {
+                      try {
+                        await acceptPlaylistInvite(playlistKey);
+                        toast.success("Playlist added");
+                        playlistMutate();
+                      } catch (e) {
+                        toast.error(e.message);
+                      }
+                    }}
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    compact
+                    onClick={async () => {
+                      try {
+                        await rejectPlaylistInvite(playlistKey);
+                        playlistMutate();
                       } catch (e) {
                         toast.error(e.message);
                       }

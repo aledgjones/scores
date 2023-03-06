@@ -14,14 +14,14 @@ interface Props {
 
 const DeleteScore: FC<Props> = ({ libraryKey, score, onClose }) => {
   const [working, setWorking] = useState(false);
-  const { mutate: mutateAll } = useAllScores();
-  const { mutate: mutateLibrary } = useLibraryScores(libraryKey);
+  const { mutate: mutateAllScores } = useAllScores();
+  const { mutate: mutateLibraryScores } = useLibraryScores(libraryKey);
   const onDelete = async () => {
     try {
       setWorking(true);
       await deleteScore(score);
-      mutateAll();
-      mutateLibrary();
+      mutateAllScores();
+      mutateLibraryScores();
       onClose();
     } catch (err) {
       toast.error(err.message);

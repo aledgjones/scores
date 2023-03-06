@@ -25,10 +25,16 @@ interface Shape {
   deleteLibrary: { open: boolean; library?: Library; scores?: Score[] };
   deletePlaylist: { open: boolean; playlist?: Playlist };
   playlistSheet: { open: boolean; playlistKey?: string; selection?: string };
+  inviteToPlaylist: { open: boolean; playlistKey?: string };
   inviteToLibrary: { open: boolean; libraryKey?: string };
   manageLibraryMember: {
     open: boolean;
     libraryKey?: string;
+    uid?: string;
+  };
+  managePlaylistMember: {
+    open: boolean;
+    playlistKey?: string;
     uid?: string;
   };
 }
@@ -48,8 +54,10 @@ export const uiStore = new Store<Shape>({
   deleteScore: { open: false },
   deletePlaylist: { open: false },
   playlistSheet: { open: false },
+  inviteToPlaylist: { open: false },
   inviteToLibrary: { open: false },
   manageLibraryMember: { open: false },
+  managePlaylistMember: { open: false },
 });
 
 export const openMainDrawer = () => {
@@ -263,5 +271,32 @@ export const useConnectionWorker = () => {
 export const setUpdateAvailable = () => {
   uiStore.update((s) => {
     s.updateAvailable = true;
+  });
+};
+
+export const openInviteToPlaylist = (playlistKey: string) => {
+  uiStore.update((s) => {
+    s.inviteToPlaylist.open = true;
+    s.inviteToPlaylist.playlistKey = playlistKey;
+  });
+};
+
+export const closeInviteToPlaylist = () => {
+  uiStore.update((s) => {
+    s.inviteToPlaylist.open = false;
+  });
+};
+
+export const openManagePlaylistMember = (playlistKey: string, uid: string) => {
+  uiStore.update((s) => {
+    s.managePlaylistMember.open = true;
+    s.managePlaylistMember.playlistKey = playlistKey;
+    s.managePlaylistMember.uid = uid;
+  });
+};
+
+export const closeManagePlaylistMember = () => {
+  uiStore.update((s) => {
+    s.managePlaylistMember.open = false;
   });
 };

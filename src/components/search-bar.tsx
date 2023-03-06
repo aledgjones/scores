@@ -11,6 +11,7 @@ import classNames from "classnames";
 import { noop } from "../ui/utils/noop";
 import { useUserLibraryInvites } from "../services/libraries";
 import { Link, useLocation } from "react-router-dom";
+import { useUserPlaylistInvites } from "../services/playlists";
 
 interface Props {
   toggled?: string;
@@ -23,8 +24,11 @@ const SearchBar: FC<Props> = ({ toggled, onToggle }) => {
   const [focused, setFocused] = useState(false);
   const [value, onChange] = useState("");
   const { scores } = useAllScores();
-  const { invites } = useUserLibraryInvites();
+  const { invites: libraryInvites } = useUserLibraryInvites();
+  const { invites: playlistInvites } = useUserPlaylistInvites();
   const updateAvailable = uiStore.useState((s) => s.updateAvailable);
+
+  const invites = [...libraryInvites, ...playlistInvites];
 
   const showDot = invites.length > 0 || updateAvailable;
 

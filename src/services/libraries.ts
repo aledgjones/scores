@@ -39,7 +39,7 @@ const getLibraryMembers = async (key: string) => {
 
   const { data } = await supabase
     .from("library_members")
-    .select("user(uid, name, email),read,write")
+    .select("user(uid, name, email, avatar),read,write")
     .eq("library", libraryKey)
     .returns<any>();
 
@@ -74,6 +74,7 @@ export interface LibraryMember {
   uid: string;
   name: string;
   email: string;
+  avatar?: string;
   read: boolean;
   write: boolean;
 }
@@ -180,23 +181,23 @@ export const updateLibrary = async (libraryKey: string, name: string) => {
   return libraryKey;
 };
 
-const getLibraryInviteEntry = async (libraryKey: string, email: string) => {
-  return supabase
+const getHasLibraryInviteEntry = async (libraryKey: string, email: string) => {
+  const { data } = await supabase
     .from("library_invites")
     .select("key")
-    .match({ library: libraryKey, email })
-    .maybeSingle();
+    .match({ library: libraryKey, email });
+
+  return data.length > 0;
 };
 
 export const sendInviteToLibrary = async (
   libraryKey: string,
   email: string
 ) => {
-  const { data } = await getLibraryInviteEntry(libraryKey, email);
+  const hasInvite = await getHasLibraryInviteEntry(libraryKey, email);
   const members: LibraryMember[] = await getLibraryMembers(
     `library-members/${libraryKey}`
   );
-  const hasInvite = data !== null;
   const isMember = !!members.find((user) => user.email === email);
 
   if (hasInvite) {
@@ -298,9 +299,9 @@ export const acceptLibraryInvite = async (libraryKey: string) => {
   const email = getUserEmail();
 
   // check for the invite they are trying to accept
-  const { data } = await getLibraryInviteEntry(libraryKey, email);
+  const hasInvite = await getHasLibraryInviteEntry(libraryKey, email);
 
-  if (!data) {
+  if (!hasInvite) {
     throw new Error("The invite was not found for this library");
   }
 

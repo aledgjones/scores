@@ -1,24 +1,55 @@
-import { mdiArrowLeft, mdiDeleteOutline, mdiPencilOutline } from "@mdi/js";
+import {
+  mdiArrowLeft,
+  mdiClose,
+  mdiDeleteOutline,
+  mdiDotsVertical,
+  mdiPencilOutline,
+} from "@mdi/js";
 import Icon from "@mdi/react";
 import { useNavigate, useParams } from "react-router-dom";
-import { openDeletePlaylist, openNewPlaylist } from "../services/ui";
+import {
+  openDeletePlaylist,
+  openInviteToPlaylist,
+  openManagePlaylistMember,
+  openNewPlaylist,
+} from "../services/ui";
 import IconButton from "../ui/components/icon-button";
 import Subheader from "../ui/components/subheader";
 import useScrollPosition from "../ui/utils/use-scroll-position";
 import Tooltip from "../ui/components/tooltip";
 import classNames from "classnames";
-import { usePlaylist } from "../services/playlists";
+import {
+  revokePlaylistInvite,
+  usePlaylist,
+  usePlaylistInvites,
+  usePlaylistMembers,
+} from "../services/playlists";
 import Button from "../ui/components/button";
 import Divider from "../ui/components/divider";
 import { useUserId } from "../services/auth";
+import { stringToColor } from "../ui/utils/string-to-color";
+import Avatar from "../ui/components/avatar";
+import { toast } from "react-hot-toast";
 
 export const PlaylistKeySettings = () => {
   const navigate = useNavigate();
   const uid = useUserId();
   const { playlistKey } = useParams();
+  const { members } = usePlaylistMembers(playlistKey);
+  const { invites, mutate } = usePlaylistInvites(playlistKey);
   const playlist = usePlaylist(playlistKey);
   const top = useScrollPosition();
   const isOwner = playlist?.owner.uid === uid;
+  const canManage = isOwner;
+
+  const revokeInvite = async (email: string) => {
+    try {
+      await revokePlaylistInvite(playlistKey, email);
+      mutate();
+    } catch (e) {
+      toast.error(e.message);
+    }
+  };
 
   return (
     <>
@@ -56,6 +87,81 @@ export const PlaylistKeySettings = () => {
             </div>
           </div>
         </section>
+        <section className="section">
+          <Subheader>Members ({members.length})</Subheader>
+          {members.map((user) => {
+            const isUserOwner = playlist?.owner?.uid === user.uid;
+            const initial = user.name.slice(0, 1).toLocaleUpperCase();
+            const color = stringToColor(user.email);
+            return (
+              <div className="user" key={user.uid}>
+                <Avatar color={color} margin image={user.avatar}>
+                  {initial}
+                </Avatar>
+                <div className="text">
+                  <p>
+                    {user.name} {isUserOwner ? "(Owner)" : ""}
+                  </p>
+                  <p className="small">{user.email}</p>
+                </div>
+                {!isUserOwner && canManage && (
+                  <Tooltip text="User options">
+                    <IconButton
+                      ariaLabel="User options"
+                      onClick={() =>
+                        openManagePlaylistMember(playlistKey, user.uid)
+                      }
+                    >
+                      <Icon path={mdiDotsVertical} size={1} />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </div>
+            );
+          })}
+        </section>
+        {canManage && (
+          <section className="section">
+            <Subheader>Pending invites ({invites.length})</Subheader>
+            {invites.map((email) => {
+              const initial = email.slice(0, 1).toLocaleUpperCase();
+              const color = stringToColor(email);
+              return (
+                <div className="user" key={email}>
+                  <Avatar color={color} margin>
+                    {initial}
+                  </Avatar>
+                  <div className="text">
+                    <p>{email}</p>
+                    <p className="small">Awaiting response</p>
+                  </div>
+                  <Tooltip text="Revoke">
+                    <IconButton
+                      ariaLabel="revoke invite"
+                      onClick={() => revokeInvite(email)}
+                    >
+                      <Icon path={mdiClose} size={1} />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+              );
+            })}
+            <div
+              className="user hover"
+              onClick={() => openInviteToPlaylist(playlistKey)}
+            >
+              <Avatar color="#aaa" margin>
+                +
+              </Avatar>
+              <div className="text">
+                <p>Send invite</p>
+                <p className="small">
+                  Invite a new user using their email address
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
         <Divider />
         <section className="section">
           <div className="actions">
@@ -113,6 +219,24 @@ export const PlaylistKeySettings = () => {
         }
         .label {
           font-size: 12px;
+          opacity: 0.6;
+        }
+        .user {
+          display: flex;
+          align-items: center;
+          padding: 12px 32px 12px 35px;
+        }
+        .user.hover {
+          cursor: pointer;
+        }
+        .user.hover:hover {
+          background-color: rgb(245, 245, 245);
+        }
+        .text {
+          flex-grow: 1;
+        }
+        .small {
+          font-size: 0.8em;
           opacity: 0.6;
         }
         .actions {

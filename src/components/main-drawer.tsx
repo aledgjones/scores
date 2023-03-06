@@ -19,7 +19,7 @@ import {
 } from "@mdi/js";
 import classNames from "classnames";
 import { FC } from "react";
-import { usePlaylists } from "../services/playlists";
+import { usePlaylists, useUserPlaylistInvites } from "../services/playlists";
 import {
   closeMainDrawer,
   openNewLibrary,
@@ -38,7 +38,10 @@ const MainDrawer: FC = () => {
 
   const { libraries } = useLibraries();
   const { playlists } = usePlaylists();
-  const { invites } = useUserLibraryInvites();
+  const { invites: libraryInvites } = useUserLibraryInvites();
+  const { invites: playlistInvites } = useUserPlaylistInvites();
+
+  const invites = [...libraryInvites, ...playlistInvites];
 
   const updateAvailable = uiStore.useState((s) => s.updateAvailable);
 

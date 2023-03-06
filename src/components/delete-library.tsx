@@ -18,13 +18,13 @@ const DeleteLibrary: FC<Props> = ({ library, scores, onClose }) => {
   const navigate = useNavigate();
   const [working, setWorking] = useState(false);
   const { mutate: mutateLibraries } = useLibraries();
-  const { mutate: mutateScores } = useAllScores();
+  const { mutate: mutateAllScores } = useAllScores();
   const onDelete = async () => {
     try {
       setWorking(true);
       await deleteLibrary(library.key, scores);
       await mutateLibraries();
-      await mutateScores();
+      await mutateAllScores();
       navigate(`/library`);
       onClose();
     } catch (err) {

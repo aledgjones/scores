@@ -8,6 +8,7 @@ import Icon from "@mdi/react";
 import { mdiChevronRight } from "@mdi/js";
 import Spinner from "../ui/components/spinner";
 import toast from "react-hot-toast";
+import { useAllScores } from "../services/cache";
 
 interface Props {
   score: Score;
@@ -16,6 +17,7 @@ interface Props {
 
 const AddToPlaylist: FC<Props> = ({ score, onClose }) => {
   const { playlists } = usePlaylists();
+  const { mutate: mutateAllScores } = useAllScores();
   const [selection, setSelection] = useState("");
   const [working, setWorking] = useState(false);
 
@@ -25,6 +27,7 @@ const AddToPlaylist: FC<Props> = ({ score, onClose }) => {
         setSelection(playlistKey);
         setWorking(true);
         await addToPlaylist(playlistKey, score.key);
+        await mutateAllScores();
         onClose();
         toast.success("Added");
       } catch (err) {

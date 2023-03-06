@@ -3,12 +3,13 @@ import { DB_NAME, supabase } from "./db";
 import { Part, Score } from "./scores";
 import { useLibraries } from "./libraries";
 import useSWR from "swr";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useUserId } from "./auth";
 import { Store } from "pullstate";
 import { getStoreName, StoreKeys } from "./cleanup";
 import { uiStore } from "./ui";
 import { getPdf, renderPage } from "./pdf";
+import { usePlaylists } from "./playlists";
 
 export enum Cache {
   Success = 1,
@@ -76,19 +77,63 @@ const getLibraryScores = async (key: string) => {
   return scores;
 };
 
+const getPlaylistScores = async (key: string) => {
+  const [resource, uid, query] = key.split("/");
+
+  const { data } = await supabase
+    .from("playlist_scores")
+    .select("score(key,title,artist,parts)")
+    .or(query)
+    .returns<any>();
+
+  const scores = data.map((item) => item.score);
+
+  return scores;
+};
+
 export const useAllScores = () => {
   const uid = useUserId();
 
   const { libraries } = useLibraries();
+  const { playlists } = usePlaylists();
 
-  const query = libraries
+  const librariesQuery = libraries
     .map((library) => `library.eq.${library.key}`)
     .join(",");
 
-  const key = uid && query ? `all-scores/${uid}/${query}` : null;
-  const { data, mutate } = useSWR<Score[]>(key, getLibraryScores);
+  const librariesKey =
+    uid && librariesQuery
+      ? `all-library-scores/${uid}/${librariesQuery}`
+      : null;
+  const { data: libraryScores, mutate: mutateLibraries } = useSWR<Score[]>(
+    librariesKey,
+    getLibraryScores
+  );
 
-  return { scores: data || [], mutate };
+  const playlistsQuery = playlists
+    .map((playlist) => `playlist.eq.${playlist.key}`)
+    .join(",");
+
+  const playlistsKey =
+    uid && playlistsQuery
+      ? `all-playlist-scores/${uid}/${playlistsQuery}`
+      : null;
+  const { data: playlistScores, mutate: mutatePlaylists } = useSWR<Score[]>(
+    playlistsKey,
+    getPlaylistScores
+  );
+
+  const scores = useMemo(
+    () => [...(libraryScores || []), ...(playlistScores || [])],
+    [libraryScores, playlistScores]
+  );
+
+  return {
+    scores,
+    mutate: async () => {
+      return Promise.all([mutateLibraries(), mutatePlaylists()]);
+    },
+  };
 };
 
 export const useCache = () => cacheStore.useState((s) => s);

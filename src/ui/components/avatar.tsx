@@ -5,10 +5,11 @@ interface Props {
   color: string;
   large?: boolean;
   margin?: boolean;
+  image?: string;
   children: ReactNode;
 }
 
-const Avatar: FC<Props> = ({ children, color, large, margin }) => {
+const Avatar: FC<Props> = ({ children, color, large, image, margin }) => {
   return (
     <>
       <div
@@ -16,9 +17,13 @@ const Avatar: FC<Props> = ({ children, color, large, margin }) => {
           "avatar--large": large,
           "avatar--margin": margin,
         })}
-        style={{ backgroundColor: color }}
+        style={{
+          backgroundColor: color,
+          backgroundImage: `url(${image})`,
+          backgroundSize: "cover",
+        }}
       >
-        {children}
+        {!image && children}
       </div>
       <style jsx>{`
         .avatar {

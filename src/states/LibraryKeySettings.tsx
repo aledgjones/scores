@@ -53,16 +53,6 @@ export const LibraryKeySettings = () => {
     }
   };
 
-  const usage = scores.reduce<number>((out, score) => {
-    score.parts.forEach((part) => {
-      out = out + part.size;
-    });
-    return out;
-  }, 0);
-
-  const max = 60 * 1000 * 1000;
-  const percent = (usage / max) * 100;
-
   return (
     <>
       <div className="page">
@@ -99,52 +89,15 @@ export const LibraryKeySettings = () => {
             </div>
           </div>
         </section>
-        {/* {isOwner && (
-          <section className="section">
-            <Subheader>Billing Plan</Subheader>
-            <div className="hero-content">
-              <p className="paragraph">
-                This library is on the <span className="bold">Free Tier</span>.
-              </p>
-            </div>
-            <div className="buttons">
-              <Button margin compact primary onClick={noop}>
-                Modify plan
-              </Button>
-              <Button outline compact onClick={noop}>
-                See all plans
-                <Icon
-                  path={mdiOpenInNew}
-                  size={0.75}
-                  style={{ marginLeft: 8 }}
-                />
-              </Button>
-            </div>
-          </section>
-        )}
-        {isOwner && (
-          <section className="section">
-            <Subheader>Online Storage</Subheader>
-            <div className="meter">
-              <div className="meter-container">
-                <div className="meter-level" />
-              </div>
-              <div className="meter-text">
-                <p className="percent">{percent.toFixed(0)}% used</p>
-                <p>{`${pretty(usage)} of ${pretty(max)} used`}</p>
-              </div>
-            </div>
-          </section>
-        )} */}
         <section className="section">
-          <Subheader>Members</Subheader>
+          <Subheader>Members ({members.length})</Subheader>
           {members.map((user) => {
             const isUserOwner = library?.owner?.uid === user.uid;
             const initial = user.name.slice(0, 1).toLocaleUpperCase();
             const color = stringToColor(user.email);
             return (
               <div className="user" key={user.uid}>
-                <Avatar color={color} margin>
+                <Avatar color={color} margin image={user.avatar}>
                   {initial}
                 </Avatar>
                 <div className="text">
@@ -171,7 +124,7 @@ export const LibraryKeySettings = () => {
         </section>
         {canManage && (
           <section className="section">
-            <Subheader>Pending invites</Subheader>
+            <Subheader>Pending invites ({invites.length})</Subheader>
             {invites.map((email) => {
               const initial = email.slice(0, 1).toLocaleUpperCase();
               const color = stringToColor(email);
@@ -291,34 +244,6 @@ export const LibraryKeySettings = () => {
         .label {
           font-size: 12px;
           opacity: 0.6;
-        }
-        .meter-container {
-          position: relative;
-          height: 4px;
-          width: 100%;
-          background-color: rgb(235, 235, 235);
-          margin-bottom: 8px;
-        }
-        .meter-level {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: ${Math.min(100, percent)}%;
-          height: 100%;
-          transition: width 0.3s;
-          background-image: linear-gradient(
-            35deg,
-            rgb(var(--secondary)),
-            rgb(var(--primary))
-          );
-        }
-        .meter-text {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        .percent {
-          font-weight: bold;
         }
         .buttons {
           padding: 0 35px;

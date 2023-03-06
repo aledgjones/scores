@@ -1,7 +1,7 @@
 {
   "name": "solo-scores",
   "displayName": "Solo Scores",
-  "version": "5.5.0",
+  "version": "5.5.1",
   "description": "",
   "source": "src/index.html",
   "browserslist": "> 0.5%, last 2 versions, not dead",
@@ -24,7 +24,7 @@
     "@types/color": "^3.0.3",
     "@types/dom-screen-wake-lock": "^1.0.0",
     "@types/jest": "^29.4.0",
-    "@types/node": "^18.14.1",
+    "@types/node": "^18.14.6",
     "@types/offscreencanvas": "^2019.7.0",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
@@ -41,7 +41,7 @@
     "@dnd-kit/sortable": "^7.0.2",
     "@mdi/js": "^7.1.96",
     "@mdi/react": "^1.6.1",
-    "@supabase/supabase-js": "^2.8.0",
+    "@supabase/supabase-js": "^2.10.0",
     "app-reset": "^1.0.2",
     "array-move": "^4.0.0",
     "big.js": "^6.2.1",
@@ -57,10 +57,10 @@
     "react-hot-toast": "^2.4.0",
     "react-hotkeys-hook": "^4.3.7",
     "react-intersection-observer": "^9.4.3",
-    "react-router-dom": "^6.8.1",
+    "react-router-dom": "^6.8.2",
     "react-use": "^17.4.0",
     "styled-jsx": "^5.1.2",
-    "swr": "^2.0.4",
+    "swr": "^2.1.0",
     "uuid": "^9.0.0"
   }
 }

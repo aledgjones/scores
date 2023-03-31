@@ -82,9 +82,7 @@ ctx.addEventListener("fetch", (e: any) => {
 });
 
 ctx.addEventListener("message", (e: any) => {
-  console.log(e.data);
   if (e.data === "SKIP_WAITING") {
-    debugger;
     ctx.skipWaiting();
   }
 });
